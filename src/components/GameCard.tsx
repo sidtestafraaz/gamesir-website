@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import { GameControllerCompatibility } from '../lib/supabase';
 import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable } from 'lucide-react';
 import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2 } from 'react-icons/bs';
-import { AddGameInfoModal } from './AddGameInfoModal';
 
 interface GameCardProps {
   result: GameControllerCompatibility;
-  onRefresh?: () => void;
 }
 
-export const GameCard: React.FC<GameCardProps> = ({ result, onRefresh }) => {
+export const GameCard: React.FC<GameCardProps> = ({ result }) => {
   const { game, controller, is_supported, supported_protocols, testing_controller, testing_controllers } = result;
   const [isTestingInfoExpanded, setIsTestingInfoExpanded] = useState(false);
-  const [showAddInfoModal, setShowAddInfoModal] = useState(false);
 
   const getProtocolIcon = (protocol: string) => {
     switch (protocol.toUpperCase()) {
@@ -173,7 +170,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result, onRefresh }) => {
                               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
                                          ${controller 
                                            ? isProtocolCompatible(item.protocol, item.connectivity)
-                                             ? 'bg-red-900/30 text-red-400 border-red-800'
+                                             ? 'bg-green-900/30 text-green-400 border-green-800'
                                              : 'bg-red-900/30 text-red-400 border-red-800'
                                            : 'bg-zinc-900 text-white border-white/30'
                                          }`}
@@ -208,7 +205,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result, onRefresh }) => {
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
                                    ${controller 
                                      ? isProtocolCompatible(item.protocol, item.connectivity)
-                                       ? 'bg-red-900/30 text-red-400 border-red-800'
+                                       ? 'bg-green-900/30 text-green-400 border-green-800'
                                        : 'bg-red-900/30 text-red-400 border-red-800'
                                      : 'bg-zinc-900 text-white border-white/30'
                                    }`}
@@ -229,7 +226,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result, onRefresh }) => {
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
                                    ${controller 
                                      ? controller.supported_protocols.includes(protocol)
-                                       ? 'bg-red-900/30 text-red-400 border-red-800'
+                                       ? 'bg-green-900/30 text-green-400 border-green-800'
                                        : 'bg-red-900/30 text-red-400 border-red-800'
                                      : 'bg-zinc-900 text-white border-white/30'
                                    }`}
@@ -241,19 +238,6 @@ export const GameCard: React.FC<GameCardProps> = ({ result, onRefresh }) => {
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Add Additional Info Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowAddInfoModal(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-black hover:bg-black/80 
-                           text-white hover:text-white font-medium rounded-lg transition-all duration-200
-                           border border-white/30 hover:border-white/50 text-sm"
-              >
-                <Edit3 className="h-4 w-4" />
-                Add Info
-              </button>
             </div>
 
             {/* Collapsible Testing Information */}
@@ -362,17 +346,6 @@ export const GameCard: React.FC<GameCardProps> = ({ result, onRefresh }) => {
           </div>
         </div>
       </div>
-
-      {/* Add Game Info Modal */}
-      {showAddInfoModal && (
-        <AddGameInfoModal
-          game={game}
-          onClose={() => setShowAddInfoModal(false)}
-          onSubmit={() => {
-            if (onRefresh) onRefresh();
-          }}
-        />
-      )}
     </div>
   );
 };

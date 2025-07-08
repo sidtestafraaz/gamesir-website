@@ -227,7 +227,7 @@ function App() {
             <>
               <div className="grid gap-4 md:gap-6">
                 {paginatedResults.map((result) => (
-                  <GameCard key={result.game.id} result={result} onRefresh={refreshData} />
+                  <GameCard key={result.game.id} result={result} />
                 ))}
               </div>
 
