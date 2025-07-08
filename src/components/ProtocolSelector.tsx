@@ -48,9 +48,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 
   const connectivityOptions = [
     { value: '', label: 'None', shortLabel: 'None' },
-    { value: 'Wired/2.4GHz', label: 'Wired', shortLabel: 'Wired' },
+    { value: 'Wired/2.4GHz', label: 'Wired/2.4GHz', shortLabel: 'Wire' },
     { value: 'Bluetooth', label: 'Bluetooth', shortLabel: 'BT' },
-    { value: 'Wired/2.4GHz/Bluetooth', label: 'Both', shortLabel: 'Both' }
+    { value: 'Wired/2.4GHz/Bluetooth', label: 'Wire + BT', shortLabel: 'Both' }
   ];
 
   const platformIcon = platform === 'android' 
@@ -77,7 +77,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               {connectivityOptions.map(option => (
                 <label
                   key={option.value}
-                  className={`flex items-center justify-center py-1.5 px-1 border rounded cursor-pointer 
+                  className={`flex items-center justify-center py-2 px-1 border rounded cursor-pointer 
                              transition-all duration-200 hover:border-red-600 text-xs font-medium
                              ${protocols[key as keyof typeof protocols] === option.value
                                ? 'border-red-600 bg-red-900/20 text-red-400' 
@@ -91,7 +91,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
                     onChange={(e) => onChange(key, e.target.value)}
                     className="sr-only"
                   />
-                  <span className="truncate text-center leading-tight">
+                  <span className="truncate text-center leading-tight text-[10px] sm:text-xs">
                     {option.shortLabel}
                   </span>
                 </label>
@@ -99,6 +99,16 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
             </div>
           </div>
         ))}
+      </div>
+      
+      {/* Connectivity Legend */}
+      <div className="mt-3 p-2 bg-zinc-900/30 border border-white/20 rounded text-xs text-white/60">
+        <div className="font-medium text-white/80 mb-1">Connection Types:</div>
+        <div className="space-y-0.5">
+          <div>• <span className="text-white/70">Wire</span> = Wired/2.4GHz connection</div>
+          <div>• <span className="text-white/70">BT</span> = Bluetooth connection</div>
+          <div>• <span className="text-white/70">Both</span> = Works with either connection</div>
+        </div>
       </div>
     </div>
   );
