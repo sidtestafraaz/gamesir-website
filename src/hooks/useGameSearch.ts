@@ -88,13 +88,13 @@ export const useGameSearch = () => {
       };
 
       Object.entries(androidProtocols).forEach(([protocol, connectivity]) => {
-        if (!connectivity || connectivity === '') return;
+        if (!connectivity || connectivity === '' || connectivity === 'None') return;
 
         // Check if controller supports this protocol
         const controllerSupportsWired = controller.wired_protocols.includes(protocol);
         const controllerSupportsBluetooth = controller.bluetooth_protocols.includes(protocol);
 
-        if (connectivity === 'Wired/2.4GHz/Bluetooth' && controllerSupportsWired && controllerSupportsBluetooth) {
+        if (connectivity === 'Wired/2.4GHz/Bluetooth' && (controllerSupportsWired || controllerSupportsBluetooth)) {
           compatibleProtocols.push({
             protocol,
             connectivity: 'Wired/2.4GHz/Bluetooth'
@@ -123,7 +123,7 @@ export const useGameSearch = () => {
       };
 
       Object.entries(iosProtocols).forEach(([protocol, connectivity]) => {
-        if (!connectivity || connectivity === '') return;
+        if (!connectivity || connectivity === '' || connectivity === 'None') return;
 
         // Check if controller supports this protocol
         const controllerSupportsWired = controller.wired_protocols.includes(protocol);
@@ -136,7 +136,7 @@ export const useGameSearch = () => {
           if (existingProtocol.connectivity === 'Wired/2.4GHz/Bluetooth') return;
           
           // If new connectivity is 'Both' and existing is not, replace it
-          if (connectivity === 'Wired/2.4GHz/Bluetooth' && controllerSupportsWired && controllerSupportsBluetooth) {
+          if (connectivity === 'Wired/2.4GHz/Bluetooth' && (controllerSupportsWired || controllerSupportsBluetooth)) {
             existingProtocol.connectivity = 'Wired/2.4GHz/Bluetooth';
             return;
           }
@@ -145,7 +145,7 @@ export const useGameSearch = () => {
           return;
         }
 
-        if (connectivity === 'Wired/2.4GHz/Bluetooth' && controllerSupportsWired && controllerSupportsBluetooth) {
+        if (connectivity === 'Wired/2.4GHz/Bluetooth' && (controllerSupportsWired || controllerSupportsBluetooth)) {
           compatibleProtocols.push({
             protocol,
             connectivity: 'Wired/2.4GHz/Bluetooth'
