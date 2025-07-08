@@ -82,6 +82,29 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
     return platforms;
   };
 
+  // Check if a protocol is compatible with the selected controller
+  const isProtocolCompatible = (protocol: string, connectivity: string) => {
+    if (!controller) return true; // No controller selected, show all as neutral
+    
+    const protocolUpper = protocol.toUpperCase();
+    
+    // Check if controller supports this protocol
+    const controllerSupportsWired = controller.wired_protocols.includes(protocolUpper);
+    const controllerSupportsBluetooth = controller.bluetooth_protocols.includes(protocolUpper);
+    
+    // Check connectivity compatibility
+    switch (connectivity) {
+      case 'Wired/2.4GHz':
+        return controllerSupportsWired;
+      case 'Bluetooth':
+        return controllerSupportsBluetooth;
+      case 'Wired/2.4GHz/Bluetooth':
+        return controllerSupportsWired || controllerSupportsBluetooth;
+      default:
+        return false;
+    }
+  };
+
   const platformProtocols = getPlatformProtocols();
   const hasTestingInfo = testing_controller || testing_controllers?.length > 0 || game.discord_username || game.testing_notes || game.approved_by || game.created_at || (game as any).edited_by_admin;
 
@@ -144,8 +167,13 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
                           {platform.protocols.map((item, index) => (
                             <span
                               key={`${platform.name}-${item.protocol}-${index}`}
-                              className="flex items-center gap-2 px-3 py-2 bg-zinc-900 
-                                         text-white rounded-lg text-sm font-medium border border-white/30"
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
+                                         ${controller 
+                                           ? isProtocolCompatible(item.protocol, item.connectivity)
+                                             ? 'bg-green-900/30 text-green-400 border-green-800'
+                                             : 'bg-red-900/30 text-red-400 border-red-800'
+                                           : 'bg-zinc-900 text-white border-white/30'
+                                         }`}
                             >
                               {getProtocolIcon(item.protocol)}
                               <span>{item.protocol}</span>
@@ -174,8 +202,13 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
                     supported_protocols.map((item, index) => (
                       <span
                         key={`${item.protocol}-${item.connectivity}-${index}`}
-                        className="flex items-center gap-2 px-3 py-2 bg-zinc-900 
-                                   text-white rounded-lg text-sm font-medium border border-white/30"
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
+                                   ${controller 
+                                     ? isProtocolCompatible(item.protocol, item.connectivity)
+                                       ? 'bg-green-900/30 text-green-400 border-green-800'
+                                       : 'bg-red-900/30 text-red-400 border-red-800'
+                                     : 'bg-zinc-900 text-white border-white/30'
+                                   }`}
                       >
                         {getProtocolIcon(item.protocol)}
                         <span>{item.protocol}</span>
@@ -190,8 +223,13 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
                     game.supported_protocols.map((protocol) => (
                       <span
                         key={protocol}
-                        className="flex items-center gap-2 px-3 py-2 bg-zinc-900 
-                                   text-white rounded-lg text-sm font-medium border border-white/30"
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
+                                   ${controller 
+                                     ? controller.supported_protocols.includes(protocol)
+                                       ? 'bg-green-900/30 text-green-400 border-green-800'
+                                       : 'bg-red-900/30 text-red-400 border-red-800'
+                                     : 'bg-zinc-900 text-white border-white/30'
+                                   }`}
                       >
                         {getProtocolIcon(protocol)}
                         {protocol}
