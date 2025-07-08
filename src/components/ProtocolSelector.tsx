@@ -73,12 +73,12 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               <span className="text-xs text-white/50 hidden md:inline">- {description}</span>
             </div>
             
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               {connectivityOptions.map(option => (
                 <label
                   key={option.value}
-                  className={`flex items-center gap-2 py-2 px-3 border rounded cursor-pointer 
-                             transition-all duration-200 hover:border-red-600 text-xs font-medium w-full
+                  className={`flex items-center justify-center py-2 px-2 border rounded cursor-pointer 
+                             transition-all duration-200 hover:border-red-600 text-xs font-medium
                              ${protocols[key as keyof typeof protocols] === option.value
                                ? 'border-red-600 bg-red-900/20 text-red-400' 
                                : 'border-white/30 bg-black text-white/70'}`}
@@ -89,9 +89,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
                     value={option.value}
                     checked={protocols[key as keyof typeof protocols] === option.value}
                     onChange={(e) => onChange(key, e.target.value)}
-                    className="w-3 h-3 text-red-600 bg-black border-white/30 focus:ring-red-500"
+                    className="sr-only"
                   />
-                  <span className="flex-1 text-left">
+                  <span className="text-center flex-1">
                     {option.label}
                   </span>
                 </label>
