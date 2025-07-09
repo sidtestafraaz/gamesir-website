@@ -4,7 +4,6 @@ import { supabase, Game, Controller, GameUpdate } from '../lib/supabase';
 import { AddControllerForm } from './AddControllerForm';
 import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
-import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { BsAndroid, BsApple, BsXbox, BsPlaystation, BsNintendoSwitch, BsController } from 'react-icons/bs';
 
