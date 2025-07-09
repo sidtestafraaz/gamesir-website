@@ -4,6 +4,7 @@ import { supabase, Game, Controller, GameUpdate } from '../lib/supabase';
 import { AddControllerForm } from './AddControllerForm';
 import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
+import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { BsAndroid, BsApple, BsXbox, BsPlaystation, BsNintendoSwitch, BsController } from 'react-icons/bs';
 
@@ -18,15 +19,19 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [approverName, setApproverName] = useState('');
   const [pendingGames, setPendingGames] = useState<Game[]>([]);
+  const [pendingGameUpdates, setPendingGameUpdates] = useState<any[]>([]);
   const [rejectedGames, setRejectedGames] = useState<Game[]>([]);
+  const [rejectedGameUpdates, setRejectedGameUpdates] = useState<any[]>([]);
   const [pendingUpdates, setPendingUpdates] = useState<GameUpdate[]>([]);
   const [controllers, setControllers] = useState<Controller[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentView, setCurrentView] = useState<'approval' | 'add-controller'>('approval');
   const [editingGame, setEditingGame] = useState<Game | null>(null);
+  const [editingGameUpdate, setEditingGameUpdate] = useState<any>(null);
   const [editingUpdate, setEditingUpdate] = useState<GameUpdate | null>(null);
   const [rejectingGame, setRejectingGame] = useState<Game | null>(null);
+  const [rejectingGameUpdate, setRejectingGameUpdate] = useState<any>(null);
   
   // Pagination states
   const [pendingPage, setPendingPage] = useState(1);
@@ -35,8 +40,10 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchPendingGames();
+      fetchPendingGameUpdates();
       fetchPendingUpdates();
       fetchRejectedGames();
+      fetchRejectedGameUpdates();
       fetchControllers();
     }
   }, [isAuthenticated]);
@@ -506,6 +513,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const handleBackToApproval = () => {
     setCurrentView('approval');
     fetchControllers(); // Refresh controllers list
+    fetchPendingGames();
+    fetchPendingGameUpdates();
     fetchPendingUpdates(); // Refresh updates list
   };
 
