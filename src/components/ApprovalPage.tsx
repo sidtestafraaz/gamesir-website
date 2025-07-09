@@ -3,6 +3,7 @@ import { ArrowLeft, Shield, CheckCircle, XCircle, User, Calendar, MessageSquare,
 import { supabase, Game, Controller, GameUpdate } from '../lib/supabase';
 import { AddControllerForm } from './AddControllerForm';
 import { EditGameModal } from './EditGameModal';
+import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { BsAndroid, BsApple, BsXbox, BsPlaystation, BsNintendoSwitch, BsController } from 'react-icons/bs';
 
@@ -24,6 +25,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const [error, setError] = useState('');
   const [currentView, setCurrentView] = useState<'approval' | 'add-controller'>('approval');
   const [editingGame, setEditingGame] = useState<Game | null>(null);
+  const [editingUpdate, setEditingUpdate] = useState<GameUpdate | null>(null);
   const [rejectingGame, setRejectingGame] = useState<Game | null>(null);
   
   // Pagination states
@@ -178,7 +180,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const handleUpdateApproval = async (updateId: string, approved: boolean) => {
     try {
       if (approved) {
-        // Get the update data
+        // Get the update data with testing controllers
         const { data: updateData, error: fetchError } = await supabase
           .from('game_updates')
           .select(`
@@ -201,13 +203,23 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
         if (gameError) throw gameError;
 
+        // Get existing testing controllers from junction table
+        const { data: existingControllers, error: existingControllersError } = await supabase
+          .from('games_testing_controllers')
+          .select('controller_id')
+          .eq('game_id', updateData.original_game_id);
+
+        if (existingControllersError) throw existingControllersError;
+
+        const existingControllerIds = existingControllers?.map(c => c.controller_id) || [];
+
         // Merge discord usernames and testing controllers
         const mergedDiscordUsername = [originalGame.discord_username, updateData.discord_username]
           .filter(Boolean)
           .join(', ');
 
         const mergedControllerIds = [
-          ...(originalGame.testing_controller_ids || []),
+          ...existingControllerIds,
           ...(updateData.testing_controller_ids || [])
         ].filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
 
@@ -234,6 +246,24 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
         if (updateGameError) throw updateGameError;
       }
+        // Update the games_testing_controllers junction table
+        if (mergedControllerIds.length > 0) {
+          // First, delete existing entries
+          await supabase
+            .from('games_testing_controllers')
+            .delete()
+            .eq('game_id', updateData.original_game_id);
+
+          // Then insert merged controllers
+          const junctionData = mergedControllerIds.map(controllerId => ({
+            game_id: updateData.original_game_id,
+            controller_id: controllerId
+          }));
+
+          await supabase
+            .from('games_testing_controllers')
+            .insert(junctionData);
+        }
 
       // Update the game update status
       const { error } = await supabase
@@ -307,6 +337,63 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     } catch (error) {
       console.error('Error updating game:', error);
       setError('Failed to update game');
+    }
+  };
+
+  const handleEditGameUpdate = async (updateId: string, updatedData: any, approveAfterSave = false) => {
+    try {
+      const updatePayload = {
+        ...updatedData,
+        edited_by_admin: true,
+        edited_at: new Date().toISOString()
+      };
+
+      // If approving after save, add approval data
+      if (approveAfterSave) {
+        updatePayload.is_approved = true;
+        updatePayload.approved_by = approverName;
+        updatePayload.approved_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('game_updates')
+        .update(updatePayload)
+        .eq('id', updateId);
+
+      if (error) throw error;
+
+      // Update testing controllers junction table
+      if (updatedData.testingControllerIds) {
+        // Delete existing entries
+        await supabase
+          .from('game_updates_testing_controllers')
+          .delete()
+          .eq('game_update_id', updateId);
+
+        // Insert new entries
+        if (updatedData.testingControllerIds.length > 0) {
+          const junctionData = updatedData.testingControllerIds.map((controllerId: string) => ({
+            game_update_id: updateId,
+            controller_id: controllerId
+          }));
+
+          await supabase
+            .from('game_updates_testing_controllers')
+            .insert(junctionData);
+        }
+      }
+
+      // If approved after save, handle the approval process
+      if (approveAfterSave) {
+        await handleUpdateApproval(updateId, true);
+      }
+
+      // Refresh pending updates
+      fetchPendingUpdates();
+      setEditingUpdate(null);
+    } catch (error) {
+      console.error('Error updating game update:', error);
+      setError('Failed to update game update');
     }
   };
 
@@ -688,6 +775,15 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                                 
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 flex-shrink-0">
                                   <button
+                                    onClick={() => setEditingUpdate(update)}
+                                    className="flex items-center gap-2 px-3 md:px-4 py-2 bg-black hover:bg-black/80 
+                                               text-white hover:text-white font-medium rounded-lg transition-all duration-200
+                                               border border-white/30 hover:border-white/50 text-sm md:text-base w-full sm:w-auto justify-center"
+                                  >
+                                    <Edit3 className="h-4 w-4" />
+                                    Edit
+                                  </button>
+                                  <button
                                     onClick={() => handleUpdateApproval(update.id, false)}
                                     className="flex items-center gap-2 px-3 md:px-4 py-2 bg-black hover:bg-black/80 
                                                text-white hover:text-white font-medium rounded-lg transition-all duration-200
@@ -717,6 +813,12 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                                         <span className="text-white text-xs">
                                           Controllers: {testingControllers.map((c: any) => c.name).join(', ')}
                                         </span>
+                                      </div>
+                                    )}
+                                    {(update as any).edited_by_admin && (
+                                      <div className="flex items-center gap-2">
+                                        <Edit3 className="h-4 w-4 text-white/50" />
+                                        <span className="text-white text-xs">Edited by Admin</span>
                                       </div>
                                     )}
                                     {update.discord_username && (
@@ -1021,6 +1123,15 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           controllers={controllers}
           onSave={handleEditGame}
           onClose={() => setEditingGame(null)}
+        />
+      )}
+
+      {editingUpdate && (
+        <EditGameUpdateModal
+          gameUpdate={editingUpdate}
+          controllers={controllers}
+          onSave={handleEditGameUpdate}
+          onClose={() => setEditingUpdate(null)}
         />
       )}
 

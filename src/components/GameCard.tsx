@@ -346,19 +346,18 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
         </div>
         
         {/* Add Info Button */}
-        <div className="mt-4 pt-4 border-t border-white/20">
+        <div className="mt-4 pt-3 border-t border-white/10">
           <button
             onClick={() => setShowUpdateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 
-                       text-white font-medium rounded-lg transition-all duration-200 
-                       border border-white/30 hover:border-white/50 text-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium 
+                       text-white/70 hover:text-white bg-transparent hover:bg-white/5 
+                       border border-white/20 hover:border-white/30 rounded-md 
+                       transition-all duration-200"
           >
-            <Plus className="h-4 w-4" />
-            Add Additional Info
+            <Plus className="h-3 w-3" />
+            <span className="hidden sm:inline">Add Additional Info</span>
+            <span className="sm:hidden">Add Info</span>
           </button>
-          <p className="text-xs text-white/50 mt-2">
-            Contribute additional testing information for this game
-          </p>
         </div>
       </div>
       
