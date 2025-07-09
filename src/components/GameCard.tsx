@@ -345,21 +345,20 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
           </div>
         </div>
         
-      </div>
-      
-      {/* Add Info Button - Better positioned */}
-      <div className="mt-6 flex justify-center md:justify-start">
-        <button
-          onClick={() => setShowUpdateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium 
-                     text-white/80 hover:text-white bg-zinc-900/50 hover:bg-zinc-800/50 
-                     border border-white/20 hover:border-white/30 rounded-lg 
-                     transition-all duration-200 hover:shadow-lg"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Add Additional Info</span>
-          <span className="sm:hidden">Add Info</span>
-        </button>
+        {/* Add Info Button */}
+        <div className="mt-4 pt-3 border-t border-white/10">
+          <button
+            onClick={() => setShowUpdateModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium 
+                       text-white/70 hover:text-white bg-transparent hover:bg-white/5 
+                       border border-white/20 hover:border-white/30 rounded-md 
+                       transition-all duration-200"
+          >
+            <Plus className="h-3 w-3" />
+            <span className="hidden sm:inline">Add Additional Info</span>
+            <span className="sm:hidden">Add Info</span>
+          </button>
+        </div>
       </div>
       
       {/* Update Modal */}
