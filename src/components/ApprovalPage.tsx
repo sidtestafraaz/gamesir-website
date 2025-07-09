@@ -179,6 +179,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
   const handleUpdateApproval = async (updateId: string, approved: boolean) => {
     try {
+      let mergedControllerIds: string[] = [];
+      
       if (approved) {
         // Get the update data with testing controllers
         const { data: updateData, error: fetchError } = await supabase
@@ -218,7 +220,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           .filter(Boolean)
           .join(', ');
 
-        const mergedControllerIds = [
+        mergedControllerIds = [
           ...existingControllerIds,
           ...(updateData.testing_controller_ids || [])
         ].filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
@@ -245,7 +247,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           .eq('id', updateData.original_game_id);
 
         if (updateGameError) throw updateGameError;
-      }
+
         // Update the games_testing_controllers junction table
         if (mergedControllerIds.length > 0) {
           // First, delete existing entries
@@ -264,6 +266,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             .from('games_testing_controllers')
             .insert(junctionData);
         }
+      }
 
       // Update the game update status
       const { error } = await supabase
