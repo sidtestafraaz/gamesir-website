@@ -37,6 +37,34 @@ export type Game = {
   ios_ns?: string;
 };
 
+export type GameUpdate = {
+  id: string;
+  original_game_id: string;
+  android_tested?: boolean;
+  ios_tested?: boolean;
+  android_hid?: string;
+  android_xinput?: string;
+  android_ds4?: string;
+  android_ns?: string;
+  ios_hid?: string;
+  ios_xinput?: string;
+  ios_ds4?: string;
+  ios_ns?: string;
+  testing_controller_id?: string;
+  testing_controller_ids?: string[];
+  testing_notes?: string;
+  discord_username?: string;
+  is_approved?: boolean;
+  approved_by?: string;
+  approved_at?: string;
+  rejected_reason?: string;
+  rejected_by?: string;
+  rejected_at?: string;
+  created_at?: string;
+  edited_by_admin?: boolean;
+  edited_at?: string;
+};
+
 export type Controller = {
   id: string;
   name: string;

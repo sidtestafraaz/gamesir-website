@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { GameControllerCompatibility } from '../lib/supabase';
-import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable } from 'lucide-react';
+import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable, Plus } from 'lucide-react';
 import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2 } from 'react-icons/bs';
+import { AddGameUpdateModal } from './AddGameUpdateModal';
 
 interface GameCardProps {
   result: GameControllerCompatibility;
@@ -10,6 +11,7 @@ interface GameCardProps {
 export const GameCard: React.FC<GameCardProps> = ({ result }) => {
   const { game, controller, is_supported, supported_protocols, testing_controller, testing_controllers } = result;
   const [isTestingInfoExpanded, setIsTestingInfoExpanded] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const getProtocolIcon = (protocol: string) => {
     switch (protocol.toUpperCase()) {
@@ -342,7 +344,34 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
             )}
           </div>
         </div>
+        
+        {/* Add Info Button */}
+        <div className="mt-4 pt-4 border-t border-white/20">
+          <button
+            onClick={() => setShowUpdateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 
+                       text-white font-medium rounded-lg transition-all duration-200 
+                       border border-white/30 hover:border-white/50 text-sm"
+          >
+            <Plus className="h-4 w-4" />
+            Add Additional Info
+          </button>
+          <p className="text-xs text-white/50 mt-2">
+            Contribute additional testing information for this game
+          </p>
+        </div>
       </div>
+      
+      {/* Update Modal */}
+      {showUpdateModal && (
+        <AddGameUpdateModal
+          game={game}
+          onClose={() => setShowUpdateModal(false)}
+          onSubmit={() => {
+            // Refresh could be handled here if needed
+          }}
+        />
+      )}
     </div>
   );
 };
