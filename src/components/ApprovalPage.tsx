@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Shield, CheckCircle, XCircle, User, Calendar, MessageSquare, Gamepad2, Plus, Edit3, Trash2, ChevronLeft, ChevronRight, Smartphone } from 'lucide-react';
-import { supabase, Game, Controller } from '../lib/supabase';
+import { supabase, Game, Controller, GameUpdate } from '../lib/supabase';
 import { AddControllerForm } from './AddControllerForm';
 import { EditGameModal } from './EditGameModal';
 import { RejectGameModal } from './RejectGameModal';
@@ -18,6 +18,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const [approverName, setApproverName] = useState('');
   const [pendingGames, setPendingGames] = useState<Game[]>([]);
   const [rejectedGames, setRejectedGames] = useState<Game[]>([]);
+  const [pendingUpdates, setPendingUpdates] = useState<GameUpdate[]>([]);
   const [controllers, setControllers] = useState<Controller[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -32,6 +33,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchPendingGames();
+      fetchPendingUpdates();
       fetchRejectedGames();
       fetchControllers();
     }
@@ -86,6 +88,29 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       setError('Failed to fetch pending games');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchPendingUpdates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('game_updates')
+        .select(`
+          *,
+          games!original_game_id(name, image_url),
+          controllers!testing_controller_id(*),
+          testing_controllers:game_updates_testing_controllers!game_update_id(
+            controllers(*)
+          )
+        `)
+        .eq('is_approved', false)
+        .is('rejected_reason', null)
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+      if (data) setPendingUpdates(data as any);
+    } catch (error) {
+      console.error('Error fetching pending updates:', error);
     }
   };
 
@@ -150,6 +175,85 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
+  const handleUpdateApproval = async (updateId: string, approved: boolean) => {
+    try {
+      if (approved) {
+        // Get the update data
+        const { data: updateData, error: fetchError } = await supabase
+          .from('game_updates')
+          .select(`
+            *,
+            testing_controllers:game_updates_testing_controllers!game_update_id(
+              controllers(*)
+            )
+          `)
+          .eq('id', updateId)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // Get original game data
+        const { data: originalGame, error: gameError } = await supabase
+          .from('games')
+          .select('*')
+          .eq('id', updateData.original_game_id)
+          .single();
+
+        if (gameError) throw gameError;
+
+        // Merge discord usernames and testing controllers
+        const mergedDiscordUsername = [originalGame.discord_username, updateData.discord_username]
+          .filter(Boolean)
+          .join(', ');
+
+        const mergedControllerIds = [
+          ...(originalGame.testing_controller_ids || []),
+          ...(updateData.testing_controller_ids || [])
+        ].filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
+
+        // Update the original game with merged data
+        const { error: updateGameError } = await supabase
+          .from('games')
+          .update({
+            android_tested: updateData.android_tested,
+            ios_tested: updateData.ios_tested,
+            android_hid: updateData.android_hid,
+            android_xinput: updateData.android_xinput,
+            android_ds4: updateData.android_ds4,
+            android_ns: updateData.android_ns,
+            ios_hid: updateData.ios_hid,
+            ios_xinput: updateData.ios_xinput,
+            ios_ds4: updateData.ios_ds4,
+            ios_ns: updateData.ios_ns,
+            testing_notes: updateData.testing_notes,
+            discord_username: mergedDiscordUsername,
+            testing_controller_ids: mergedControllerIds,
+            testing_controller_id: mergedControllerIds[0] || null
+          })
+          .eq('id', updateData.original_game_id);
+
+        if (updateGameError) throw updateGameError;
+      }
+
+      // Update the game update status
+      const { error } = await supabase
+        .from('game_updates')
+        .update({
+          is_approved: approved,
+          approved_by: approved ? approverName : null,
+          approved_at: approved ? new Date().toISOString() : null
+        })
+        .eq('id', updateId);
+
+      if (error) throw error;
+
+      setPendingUpdates(prev => prev.filter(update => update.id !== updateId));
+    } catch (error) {
+      console.error('Error updating game update approval:', error);
+      setError('Failed to update game update approval status');
+    }
+  };
+
   const handleReject = async (gameId: string, reason: string) => {
     try {
       const updateData = {
@@ -198,6 +302,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
       // Refresh pending games
       fetchPendingGames();
+      fetchPendingUpdates();
       setEditingGame(null);
     } catch (error) {
       console.error('Error updating game:', error);
@@ -311,6 +416,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const handleBackToApproval = () => {
     setCurrentView('approval');
     fetchControllers(); // Refresh controllers list
+    fetchPendingUpdates(); // Refresh updates list
   };
 
   // Pagination helpers
@@ -498,7 +604,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 Add Controller
               </button>
               <div className="flex items-center gap-2 text-white">
-                <span className="text-xs md:text-sm font-medium">{pendingGames.length} pending</span>
+                <span className="text-xs md:text-sm font-medium">{pendingGames.length + pendingUpdates.length} pending</span>
               </div>
             </div>
           </div>
@@ -509,13 +615,13 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
         {/* Pending Games Section */}
         <div className="mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Pending Game Approvals</h2>
-          <p className="text-white/70 mb-6 md:mb-8">Review and approve submitted games for the public database (oldest first)</p>
+          <p className="text-white/70 mb-6 md:mb-8">Review and approve new games and updates for the public database (oldest first)</p>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/20 border-t-red-600"></div>
             </div>
-          ) : pendingGames.length === 0 ? (
+          ) : pendingGames.length === 0 && pendingUpdates.length === 0 ? (
             <div className="text-center py-16">
               <CheckCircle className="h-16 md:h-24 w-16 md:w-24 text-red-500 mx-auto mb-6" />
               <h3 className="text-xl md:text-2xl font-semibold text-white mb-3">All caught up!</h3>
@@ -523,6 +629,139 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </div>
           ) : (
             <>
+              {/* Pending Game Updates */}
+              {pendingUpdates.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Edit3 className="h-5 w-5 text-red-600" />
+                    Game Updates ({pendingUpdates.length})
+                  </h3>
+                  <div className="space-y-4">
+                    {pendingUpdates.map((update) => {
+                      const originalGame = (update as any).games;
+                      const testingControllers = ((update as any).testing_controllers || [])
+                        .map((tc: any) => tc.controllers)
+                        .filter((c: any) => c !== null);
+                      
+                      return (
+                        <div key={update.id} className="bg-black border border-red-800/50 rounded-xl p-4 md:p-6 shadow-lg">
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/20">
+                              {originalGame?.image_url ? (
+                                <img 
+                                  src={originalGame.image_url} 
+                                  alt={originalGame.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <Gamepad2 className="h-6 w-6 md:h-8 md:w-8 text-white/50" />
+                              )}
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex flex-col lg:flex-row lg:items-start justify-between mb-3 gap-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Edit3 className="h-4 w-4 text-red-600" />
+                                    <span className="text-sm font-medium text-red-400">UPDATE FOR:</span>
+                                  </div>
+                                  <h3 className="text-base md:text-lg font-bold text-white mb-1">{originalGame?.name}</h3>
+                                  
+                                  {/* Platform Testing Info */}
+                                  {(update.android_tested || update.ios_tested) && (
+                                    <div className="flex items-center gap-3 mt-2">
+                                      {update.android_tested && (
+                                        <div className="flex items-center gap-1">
+                                          <BsAndroid className="h-3 w-3 text-green-400" />
+                                          <span className="text-white/70 text-xs">Android</span>
+                                        </div>
+                                      )}
+                                      {update.ios_tested && (
+                                        <div className="flex items-center gap-1">
+                                          <BsApple className="h-3 w-3 text-gray-300" />
+                                          <span className="text-white/70 text-xs">iOS</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 flex-shrink-0">
+                                  <button
+                                    onClick={() => handleUpdateApproval(update.id, false)}
+                                    className="flex items-center gap-2 px-3 md:px-4 py-2 bg-black hover:bg-black/80 
+                                               text-white hover:text-white font-medium rounded-lg transition-all duration-200
+                                               border border-white/30 hover:border-white/50 text-sm md:text-base w-full sm:w-auto justify-center"
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                    Reject
+                                  </button>
+                                  <button
+                                    onClick={() => handleUpdateApproval(update.id, true)}
+                                    className="flex items-center gap-2 px-3 md:px-4 py-2 bg-red-600 hover:bg-red-700 
+                                               text-white font-medium rounded-lg transition-all duration-200 text-sm md:text-base w-full sm:w-auto justify-center"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                    Approve Update
+                                  </button>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="text-sm font-semibold text-white mb-2">Update Details</h4>
+                                  <div className="space-y-1">
+                                    {testingControllers.length > 0 && (
+                                      <div className="flex items-center gap-2">
+                                        <Gamepad2 className="h-4 w-4 text-white/50" />
+                                        <span className="text-white text-xs">
+                                          Controllers: {testingControllers.map((c: any) => c.name).join(', ')}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {update.discord_username && (
+                                      <div className="flex items-center gap-2">
+                                        <User className="h-4 w-4 text-white/50" />
+                                        <span className="text-white text-xs">By: {update.discord_username}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-white/50" />
+                                      <span className="text-white text-xs">
+                                        {new Date(update.created_at!).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {update.testing_notes && (
+                                <div className="mt-4 p-3 bg-black rounded-lg border border-white/30">
+                                  <div className="flex items-start gap-2">
+                                    <MessageSquare className="h-4 w-4 text-white/50 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-white mb-1">Update Notes</h4>
+                                      <p className="text-white text-xs leading-relaxed">{update.testing_notes}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Pending New Games */}
+              {pendingGames.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Plus className="h-5 w-5 text-red-600" />
+                    New Games ({pendingGames.length})
+                  </h3>
               <div className="space-y-4 md:space-y-6">
                 {paginatedPendingGames.map((game) => {
                   const selectedControllers = getSelectedControllers(game);
@@ -679,6 +918,9 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   );
                 })}
               </div>
+
+                </div>
+              )}
 
               <PaginationControls
                 currentPage={pendingPage}
