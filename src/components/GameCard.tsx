@@ -114,6 +114,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
     <div className="bg-black border border-white/30 rounded-xl p-4 md:p-6 hover:border-white/50 
                     transition-all duration-300 shadow-lg hover:shadow-xl">
       <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+        <div className='flex flex-row md:flex-col md:items-center justify-between w-full md:w-auto'>
         <div className="w-16 h-16 md:w-20 md:h-20 bg-zinc-900 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/20">
           {game.image_url ? (
             <img 
@@ -124,6 +125,20 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
           ) : (
             <Gamepad2 className="h-6 w-6 md:h-8 md:w-8 text-white/50" />
           )}
+        </div>
+        <div className='md:mt-3'>
+          <button
+            onClick={() => setShowUpdateModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium 
+                        text-white/70 hover:text-white bg-transparent hover:bg-white/5 
+                        border border-white/20 hover:border-white/30 rounded-md 
+                        transition-all duration-200"
+          >
+            <Plus className="h-3 w-3" />
+            <span>Add Info</span>
+          </button>
+        </div>
+
         </div>
         
         <div className="flex-1 w-full">
@@ -346,19 +361,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
         </div>
         
         {/* Add Info Button */}
-        <div className="mt-4 pt-3 border-t border-white/10">
-          <button
-            onClick={() => setShowUpdateModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium 
-                       text-white/70 hover:text-white bg-transparent hover:bg-white/5 
-                       border border-white/20 hover:border-white/30 rounded-md 
-                       transition-all duration-200"
-          >
-            <Plus className="h-3 w-3" />
-            <span className="hidden sm:inline">Add Additional Info</span>
-            <span className="sm:hidden">Add Info</span>
-          </button>
-        </div>
+        
       </div>
       
       {/* Update Modal */}
