@@ -465,7 +465,6 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           </div>
         </footer>
         </div>
-      </div>
     );
   }
 
