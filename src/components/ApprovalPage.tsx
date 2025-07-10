@@ -462,9 +462,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 <User className="h-8 w-8 text-red-400" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Admin Access Required</h2>
-              <p className="text-white/70 text-sm">
-                Enter your access token to continue to the admin panel
-              </p>
+
             </div>
             
             <form onSubmit={handleTokenSubmit} className="space-y-6">
