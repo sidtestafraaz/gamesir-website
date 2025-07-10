@@ -5,6 +5,7 @@ import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { AddControllerForm } from './AddControllerForm';
+import { EditControllerModal } from './EditControllerModal';
 
 interface ApprovalPageProps {
   onBack: () => void;
@@ -25,6 +26,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const [currentView, setCurrentView] = useState<'pending' | 'approved' | 'rejected' | 'controllers' | 'updates'>('pending');
   const [showAddController, setShowAddController] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [tokenError, setTokenError] = useState('');
+  const [editingController, setEditingController] = useState<Controller | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -96,12 +99,13 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setTokenError('');
     const approver = approvers.find(a => a.token === approverToken);
     if (approver) {
       setIsAuthenticated(true);
       setCurrentApprover(approver);
     } else {
-      alert('Invalid token');
+      setTokenError('Invalid access token. Please check your token and try again.');
     }
   };
 
@@ -377,13 +381,29 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
+  const handleEditController = async (controllerId: string, updatedData: any) => {
+    try {
+      const { error } = await supabase
+        .from('controllers')
+        .update(updatedData)
+        .eq('id', controllerId);
+
+      if (error) throw error;
+      setEditingController(null);
+      await fetchData();
+    } catch (error) {
+      console.error('Error updating controller:', error);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black">
         {/* Header */}
         <header className="bg-black border-b border-white/20 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
+            {/* Desktop Header */}
+            <div className="hidden lg:flex items-center justify-between h-16">
               <button
                 onClick={onBack}
                 className="flex items-center gap-3 text-white hover:text-white transition-colors
@@ -401,6 +421,34 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 <h1 className="text-xl font-bold text-white">Admin Access</h1>
               </div>
               <div className="w-32"></div>
+            </div>
+
+            {/* Mobile Header */}
+            <div className="lg:hidden">
+              <div className="flex items-center justify-between h-16">
+                <button
+                  onClick={onBack}
+                  className="flex items-center gap-2 text-white hover:text-white transition-colors
+                             px-3 py-2 rounded-lg hover:bg-white/5 border border-white/20"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="/image.png" 
+                    alt="GameSir" 
+                    className="h-6 w-auto"
+                  />
+                  <div className="h-8 w-px bg-white/20"></div>
+                  <div className="flex flex-col">
+                    <h1 className="text-sm font-bold text-white leading-tight">
+                      Admin Access
+                    </h1>
+                    <span className="text-xs text-white/70">Required</span>
+                  </div>
+                </div>
+                <div className="w-16"></div>
+              </div>
             </div>
           </div>
         </header>
@@ -434,6 +482,11 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   placeholder="Enter your access token"
                   required
                 />
+                {tokenError && (
+                  <div className="mt-2 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+                    <p className="text-red-400 text-sm">{tokenError}</p>
+                  </div>
+                )}
               </div>
               <button
                 type="submit"
@@ -895,6 +948,14 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                           </div>
                           <div className="flex gap-2">
                             <button
+                              onClick={() => setEditingController(controller)}
+                              className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
+                                         text-white font-medium rounded-lg transition-all duration-200 border border-white/30 text-sm"
+                            >
+                              <Edit className="h-4 w-4" />
+                              Edit
+                            </button>
+                            <button
                               onClick={() => handleDeleteController(controller.id)}
                               className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
                                          text-white font-medium rounded-lg transition-all duration-200 text-sm"
@@ -938,6 +999,14 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           game={rejectingGame}
           onReject={handleRejection}
           onClose={() => setRejectingGame(null)}
+        />
+      )}
+
+      {editingController && (
+        <EditControllerModal
+          controller={editingController}
+          onSave={handleEditController}
+          onClose={() => setEditingController(null)}
         />
       )}
     </div>
