@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X, AlertCircle, CheckCircle, Gamepad2, Edit3 } from 'lucide-react';
+import { Save, X, AlertCircle, CheckCircle, Edit3 } from 'lucide-react';
 import { supabase, Game, Controller } from '../lib/supabase';
 import { ControllerMultiSelect } from './ControllerMultiSelect';
 import { ProtocolSelector } from './ProtocolSelector';
@@ -363,12 +363,22 @@ export const AddGameUpdateModal: React.FC<AddGameUpdateModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || (!formData.androidTested && !formData.iosTested) || !formData.discordUsername.trim()}
-              className="flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 bg-red-600 hover:bg-red-700 
+              className="hidden sm:flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 bg-red-600 hover:bg-red-700 
                          disabled:bg-zinc-900 disabled:cursor-not-allowed text-white 
                          font-semibold rounded-lg transition-all duration-200 text-sm md:text-base"
             >
               <Save className="h-5 w-5" />
               {isSubmitting ? 'Submitting...' : 'Submit Additional Info'}
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || (!formData.androidTested && !formData.iosTested) || !formData.discordUsername.trim()}
+              className="sm:hidden flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 bg-red-600 hover:bg-red-700 
+                         disabled:bg-zinc-900 disabled:cursor-not-allowed text-white 
+                         font-semibold rounded-lg transition-all duration-200 text-sm md:text-base"
+            >
+              <Save className="h-5 w-5" />
+              {isSubmitting ? 'Submitting...' : 'Submit New Info'}
             </button>
           </div>
         </form>
