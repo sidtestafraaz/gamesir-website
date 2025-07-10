@@ -740,7 +740,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 <img 
                   src="/image.png" 
                   alt="GameSir" 
-                  className="h-6 w-auto"
+                  className="h-8 w-auto"
                 />
                 <div className="h-8 w-px bg-white/20"></div>
             <h1 className="text-xl font-bold text-white">Admin Panel</h1>
