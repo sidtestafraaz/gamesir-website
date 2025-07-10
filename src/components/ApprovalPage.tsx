@@ -736,13 +736,15 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               <ArrowLeft className="h-5 w-5" />
               <span className="font-medium">Back to Database</span>
             </button>
-             <img 
+            <div className="flex items-center gap-2">
+                <img 
                   src="/image.png" 
                   alt="GameSir" 
                   className="h-6 w-auto"
                 />
                 <div className="h-8 w-px bg-white/20"></div>
             <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+            </div>
             <div className="text-sm text-white/70">
               Welcome, {currentApprover?.name}
             </div>
