@@ -379,34 +379,91 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="bg-black border border-white/30 rounded-xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Admin Access</h2>
-          <form onSubmit={handleTokenSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="token" className="block text-sm font-medium text-white mb-2">
-                Access Token
-              </label>
-              <input
-                type="password"
-                id="token"
-                value={approverToken}
-                onChange={(e) => setApproverToken(e.target.value)}
-                className="w-full px-4 py-3 border border-white/30 rounded-lg 
-                           text-white placeholder-white/50 bg-black focus:outline-none focus:ring-2 
-                           focus:ring-red-500 focus:border-red-500 transition-all duration-200"
-                placeholder="Enter your access token"
-                required
-              />
+      <div className="min-h-screen bg-black">
+        {/* Header */}
+        <header className="bg-black border-b border-white/20 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <button
+                onClick={onBack}
+                className="flex items-center gap-3 text-white hover:text-white transition-colors
+                           px-4 py-2 rounded-lg hover:bg-white/5 border border-white/20"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="font-medium">Back to Database</span>
+              </button>
+              <div className="flex items-center gap-4">
+                <img 
+                  src="/image.png" 
+                  alt="GameSir" 
+                  className="h-8 w-auto"
+                />
+                <h1 className="text-xl font-bold text-white">Admin Access</h1>
+              </div>
+              <div className="w-32"></div>
             </div>
-            <button
-              type="submit"
-              className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white 
-                         font-medium rounded-lg transition-all duration-200"
-            >
-              Access Admin Panel
-            </button>
-          </form>
+          </div>
+        </header>
+
+        {/* Access Token Form */}
+        <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-black border border-white/30 rounded-xl p-6 md:p-8 shadow-lg">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-800">
+                <User className="h-8 w-8 text-red-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Admin Access Required</h2>
+              <p className="text-white/70 text-sm">
+                Enter your access token to continue to the admin panel
+              </p>
+            </div>
+            
+            <form onSubmit={handleTokenSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="token" className="block text-sm font-semibold text-white mb-3">
+                  Access Token
+                </label>
+                <input
+                  type="password"
+                  id="token"
+                  value={approverToken}
+                  onChange={(e) => setApproverToken(e.target.value)}
+                  className="w-full px-4 py-3 border border-white/30 rounded-lg 
+                             text-white placeholder-white/50 bg-black focus:outline-none focus:ring-2 
+                             focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                  placeholder="Enter your access token"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white 
+                           font-semibold rounded-lg transition-all duration-200 
+                           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              >
+                Access Admin Panel
+              </button>
+            </form>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-black border-t border-white/20 mt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <img 
+                src="/image.png" 
+                alt="GameSir" 
+                className="h-6 w-auto"
+              />
+              <div className="h-6 w-px bg-white/20"></div>
+              <span className="text-white font-medium text-sm">Admin Panel</span>
+            </div>
+            <div className="text-center text-white/70">
+              <p className="text-sm">Secure access to game approval system</p>
+            </div>
+          </div>
+        </footer>
         </div>
       </div>
     );
@@ -618,7 +675,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       {/* Header */}
       <header className="bg-black border-b border-white/20 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between h-16">
             <button
               onClick={onBack}
               className="flex items-center gap-3 text-white hover:text-white transition-colors
@@ -630,6 +688,34 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             <h1 className="text-xl font-bold text-white">Admin Panel</h1>
             <div className="text-sm text-white/70">
               Welcome, {currentApprover?.name}
+            </div>
+          </div>
+
+          {/* Mobile Header */}
+          <div className="lg:hidden">
+            <div className="flex items-center justify-between h-16">
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 text-white hover:text-white transition-colors
+                           px-3 py-2 rounded-lg hover:bg-white/5 border border-white/20"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/image.png" 
+                  alt="GameSir" 
+                  className="h-6 w-auto"
+                />
+                <div className="h-8 w-px bg-white/20"></div>
+                <div className="flex flex-col">
+                  <h1 className="text-sm font-bold text-white leading-tight">
+                    Admin Panel
+                  </h1>
+                  <span className="text-xs text-white/70">{currentApprover?.name}</span>
+                </div>
+              </div>
+              <div className="w-16"></div>
             </div>
           </div>
         </div>
