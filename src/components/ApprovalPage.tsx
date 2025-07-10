@@ -418,6 +418,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   alt="GameSir" 
                   className="h-8 w-auto"
                 />
+                <div className="h-8 w-px bg-white/20"></div>
                 <h1 className="text-xl font-bold text-white">Admin Access</h1>
               </div>
               <div className="w-32"></div>
