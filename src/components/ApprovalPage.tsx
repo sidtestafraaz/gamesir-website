@@ -554,6 +554,91 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           )}
         </div>
 
+        {/* Platform and Protocol Support */}
+        <div className="space-y-3">
+          {/* Platform Support */}
+          {(game.android_tested || game.ios_tested) && (
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Platform Support:</h4>
+              <div className="flex flex-wrap gap-2">
+                {game.android_tested && (
+                  <span className="flex items-center gap-1 px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                    <span>📱</span> Android
+                  </span>
+                )}
+                {game.ios_tested && (
+                  <span className="flex items-center gap-1 px-2 py-1 bg-gray-900/30 text-gray-300 rounded text-xs border border-gray-700">
+                    <span>🍎</span> iOS
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Protocol Support */}
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-2">Protocol Support:</h4>
+            <div className="space-y-2">
+              {/* Android Protocols */}
+              {game.android_tested && (
+                <div>
+                  <span className="text-xs text-white/70 mb-1 block">Android:</span>
+                  <div className="flex flex-wrap gap-1 ml-2">
+                    {game.android_hid && game.android_hid !== 'None' && (
+                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                        HID: {game.android_hid}
+                      </span>
+                    )}
+                    {game.android_xinput && game.android_xinput !== 'None' && (
+                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                        XINPUT: {game.android_xinput}
+                      </span>
+                    )}
+                    {game.android_ds4 && game.android_ds4 !== 'None' && (
+                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                        DS4: {game.android_ds4}
+                      </span>
+                    )}
+                    {game.android_ns && game.android_ns !== 'None' && (
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                        NS: {game.android_ns}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* iOS Protocols */}
+              {game.ios_tested && (
+                <div>
+                  <span className="text-xs text-white/70 mb-1 block">iOS:</span>
+                  <div className="flex flex-wrap gap-1 ml-2">
+                    {game.ios_hid && game.ios_hid !== 'None' && (
+                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                        HID: {game.ios_hid}
+                      </span>
+                    )}
+                    {game.ios_xinput && game.ios_xinput !== 'None' && (
+                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                        XINPUT: {game.ios_xinput}
+                      </span>
+                    )}
+                    {game.ios_ds4 && game.ios_ds4 !== 'None' && (
+                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                        DS4: {game.ios_ds4}
+                      </span>
+                    )}
+                    {game.ios_ns && game.ios_ns !== 'None' && (
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                        NS: {game.ios_ns}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
         <div className="space-y-3">
           {game.discord_username && (
             <div className="flex items-center gap-2 flex-wrap">
@@ -649,6 +734,91 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           </div>
         </div>
 
+        {/* Updated Platform and Protocol Information */}
+        <div className="space-y-3">
+          {/* Platform Support Updates */}
+          {(update.android_tested || update.ios_tested) && (
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Updated Platform Support:</h4>
+              <div className="flex flex-wrap gap-2">
+                {update.android_tested && (
+                  <span className="flex items-center gap-1 px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                    <span>📱</span> Android {update.android_tested ? '(Updated)' : ''}
+                  </span>
+                )}
+                {update.ios_tested && (
+                  <span className="flex items-center gap-1 px-2 py-1 bg-gray-900/30 text-gray-300 rounded text-xs border border-gray-700">
+                    <span>🍎</span> iOS {update.ios_tested ? '(Updated)' : ''}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Updated Protocol Support */}
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-2">Updated Protocol Support:</h4>
+            <div className="space-y-2">
+              {/* Android Protocol Updates */}
+              {update.android_tested && (
+                <div>
+                  <span className="text-xs text-white/70 mb-1 block">Android Updates:</span>
+                  <div className="flex flex-wrap gap-1 ml-2">
+                    {update.android_hid && update.android_hid !== 'None' && (
+                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                        HID: {update.android_hid} ✨
+                      </span>
+                    )}
+                    {update.android_xinput && update.android_xinput !== 'None' && (
+                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                        XINPUT: {update.android_xinput} ✨
+                      </span>
+                    )}
+                    {update.android_ds4 && update.android_ds4 !== 'None' && (
+                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                        DS4: {update.android_ds4} ✨
+                      </span>
+                    )}
+                    {update.android_ns && update.android_ns !== 'None' && (
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                        NS: {update.android_ns} ✨
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* iOS Protocol Updates */}
+              {update.ios_tested && (
+                <div>
+                  <span className="text-xs text-white/70 mb-1 block">iOS Updates:</span>
+                  <div className="flex flex-wrap gap-1 ml-2">
+                    {update.ios_hid && update.ios_hid !== 'None' && (
+                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                        HID: {update.ios_hid} ✨
+                      </span>
+                    )}
+                    {update.ios_xinput && update.ios_xinput !== 'None' && (
+                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                        XINPUT: {update.ios_xinput} ✨
+                      </span>
+                    )}
+                    {update.ios_ds4 && update.ios_ds4 !== 'None' && (
+                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                        DS4: {update.ios_ds4} ✨
+                      </span>
+                    )}
+                    {update.ios_ns && update.ios_ns !== 'None' && (
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                        NS: {update.ios_ns} ✨
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
         <div className="space-y-3">
           {update.discord_username && (
             <div className="flex items-center gap-2 flex-wrap">
