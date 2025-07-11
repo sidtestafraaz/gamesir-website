@@ -24,6 +24,9 @@ export type Game = {
   testing_controller_ids?: string[];
   testing_notes?: string;
   discord_username?: string;
+  rejected_reason?: string;
+  rejected_by?: string;
+  rejected_at?: string;
   // New Android/iOS testing fields
   android_tested?: boolean;
   ios_tested?: boolean;
