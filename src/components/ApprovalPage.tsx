@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Filter, Calendar, User, MessageSquare, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth} from 'lucide-react';
 import { supabase, Game, GameUpdate, Controller, Approver } from '../lib/supabase';
 import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { AddControllerForm } from './AddControllerForm';
 import { EditControllerModal } from './EditControllerModal';
+import { BsAndroid2, BsApple, BsController, BsNintendoSwitch, BsPlaystation, BsXbox } from 'react-icons/bs';
 
 interface ApprovalPageProps {
   onBack: () => void;
@@ -395,6 +396,75 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       console.error('Error updating controller:', error);
     }
   };
+  
+  const getPlatformProtocols = (game: Game | GameUpdate) => {
+    const platforms: Array<{
+      name: string;
+      icon: React.ReactNode;
+      protocols: Array<{ protocol: string; connectivity: string }>;
+    }> = [];
+
+    // Android protocols
+    if (game.android_tested) {
+      const androidProtocols: Array<{ protocol: string; connectivity: string }> = [];
+      
+      if (game.android_hid) androidProtocols.push({ protocol: 'HID', connectivity: game.android_hid });
+      if (game.android_xinput) androidProtocols.push({ protocol: 'XINPUT', connectivity: game.android_xinput });
+      if (game.android_ds4) androidProtocols.push({ protocol: 'DS4', connectivity: game.android_ds4 });
+      if (game.android_ns) androidProtocols.push({ protocol: 'NS', connectivity: game.android_ns });
+
+      platforms.push({
+        name: 'Android',
+        icon: <BsAndroid2 className="h-4 w-4 text-gray-300" />,
+        protocols: androidProtocols
+      });
+    }
+    // iOS protocols
+    if (game.ios_tested) {
+      const iosProtocols: Array<{ protocol: string; connectivity: string }> = [];
+      
+      if (game.ios_hid) iosProtocols.push({ protocol: 'HID', connectivity: game.ios_hid });
+      if (game.ios_xinput) iosProtocols.push({ protocol: 'XINPUT', connectivity: game.ios_xinput });
+      if (game.ios_ds4) iosProtocols.push({ protocol: 'DS4', connectivity: game.ios_ds4 });
+      if (game.ios_ns) iosProtocols.push({ protocol: 'NS', connectivity: game.ios_ns });
+
+      platforms.push({
+        name: 'iOS',
+        icon: <BsApple className="h-4 w-4 text-gray-300" />,
+        protocols: iosProtocols
+      });
+    }
+
+    return platforms;
+  };
+
+  const getProtocolIcon = (protocol: string) => {
+    switch (protocol.toUpperCase()) {
+      case 'HID':
+        return <Cable className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'XINPUT':
+        return <BsXbox className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'DS4':
+        return <BsPlaystation className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'NS':
+        return <BsNintendoSwitch className="h-3 w-3 md:h-4 md:w-4" />;
+      default:
+        return <BsController className="h-3 w-3 md:h-4 md:w-4" />;
+    }
+  };
+
+  const getConnectivityIcon = (connectivity: string) => {
+    switch (connectivity) {
+      case 'Wired/2.4GHz/Bluetooth':
+        return <Wifi className="h-3 w-3" />;
+      case 'Wired/2.4GHz':
+        return <Usb className="h-3 w-3" />;
+      case 'Bluetooth':
+        return <Bluetooth className="h-3 w-3" />;
+      default:
+        return <Wifi className="h-3 w-3" />;
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -419,7 +489,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   className="h-8 w-auto"
                 />
                 <div className="h-8 w-px bg-white/20"></div>
-                <h1 className="text-xl font-bold text-white">Admin Access</h1>
+                <h1 className="text-xl font-bold text-white">Admin Panel</h1>
               </div>
               <div className="w-32"></div>
             </div>
@@ -443,9 +513,9 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   <div className="h-8 w-px bg-white/20"></div>
                   <div className="flex flex-col">
                     <h1 className="text-sm font-bold text-white leading-tight">
-                      Admin Access
+                      Admin Panel
                     </h1>
-                    <span className="text-xs text-white/70">Required</span>
+                    <span className="text-xs text-white/70">Access Required</span>
                   </div>
                 </div>
                 <div className="w-16"></div>
@@ -462,13 +532,12 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 <User className="h-8 w-8 text-red-400" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Admin Access Required</h2>
-
             </div>
             
             <form onSubmit={handleTokenSubmit} className="space-y-6">
               <div>
                 <label htmlFor="token" className="block text-sm font-semibold text-white mb-3">
-                  Access Token
+                  Admin Token
                 </label>
                 <input
                   type="password"
@@ -509,10 +578,10 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 className="h-6 w-auto"
               />
               <div className="h-6 w-px bg-white/20"></div>
-              <span className="text-white font-medium text-sm">Admin Panel</span>
+              <span className="text-white font-medium text-sm">Mobile Games Database</span>
             </div>
             <div className="text-center text-white/70">
-              <p className="text-sm">Secure access to game approval system</p>
+              <p className="text-sm">Submit. Play. Share.</p>
             </div>
           </div>
         </footer>
@@ -532,10 +601,14 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     (update as any).original_game?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredControllers = controllers.filter(controller => 
+    controller.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
   const pendingGames = filteredGames.filter(game => !game.is_approved && !game.rejected_reason);
   const approvedGames = filteredGames.filter(game => game.is_approved);
   const rejectedGames = filteredGames.filter(game => game.rejected_reason);
   const pendingUpdates = filteredGameUpdates.filter(update => !update.is_approved && !update.rejected_reason);
+  
 
   const renderGameCard = (game: Game, showActions = true) => (
     <div key={game.id} className="bg-black border border-white/30 rounded-xl p-4 md:p-6">
@@ -554,90 +627,38 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           )}
         </div>
 
-        {/* Platform and Protocol Support */}
+        {/* Protocol Support */}
         <div className="space-y-3">
-          {/* Platform Support */}
-          {(game.android_tested || game.ios_tested) && (
-            <div>
-              <h4 className="text-sm font-semibold text-white mb-2">Platform Support:</h4>
-              <div className="flex flex-wrap gap-2">
-                {game.android_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                    <span>📱</span> Android
-                  </span>
-                )}
-                {game.ios_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                    <span>🍎</span> iOS
-                  </span>
-                )}
+          {getPlatformProtocols(game).map((platform) => (
+            <div key={platform.name} className="space-y-2">
+              <div className="flex items-center gap-2">
+                {platform.icon}
+                <span className="text-sm font-medium text-white">{platform.name}</span>
               </div>
-            </div>
-          )}
-
-          {/* Protocol Support */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-2">Protocol Support:</h4>
-            <div className="space-y-2">
-              {/* Android Protocols */}
-              {game.android_tested && (
-                <div>
-                  <span className="text-xs text-white/70 mb-1 block">Android:</span>
-                  <div className="flex flex-wrap gap-1 ml-2">
-                    {game.android_hid && game.android_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        HID: {game.android_hid}
-                      </span>
-                    )}
-                    {game.android_xinput && game.android_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        XINPUT: {game.android_xinput}
-                      </span>
-                    )}
-                    {game.android_ds4 && game.android_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        DS4: {game.android_ds4}
-                      </span>
-                    )}
-                    {game.android_ns && game.android_ns !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        NS: {game.android_ns}
-                      </span>
-                    )}
-                  </div>
+              
+              {platform.protocols.length > 0 ? (
+                <div className="flex flex-wrap gap-2 ml-6">
+                  {platform.protocols.map((item, index) => (
+                    <span key={`${platform.name}-${item.protocol}-${index}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border bg-zinc-900 text-white border-white/30">
+                      {getProtocolIcon(item.protocol)}
+                      <span>{item.protocol}</span>
+                      <span className="text-xs text-white/50">via</span>
+                      <div className="flex items-center gap-1">
+                        {getConnectivityIcon(item.connectivity)}
+                        <span className="text-xs">{item.connectivity}</span>
+                      </div>
+                    </span>
+                  ))}
                 </div>
-              )}
-
-              {/* iOS Protocols */}
-              {game.ios_tested && (
-                <div>
-                  <span className="text-xs text-white/70 mb-1 block">iOS:</span>
-                  <div className="flex flex-wrap gap-1 ml-2">
-                    {game.ios_hid && game.ios_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        HID: {game.ios_hid}
-                      </span>
-                    )}
-                    {game.ios_xinput && game.ios_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        XINPUT: {game.ios_xinput}
-                      </span>
-                    )}
-                    {game.ios_ds4 && game.ios_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        DS4: {game.ios_ds4}
-                      </span>
-                    )}
-                    {game.ios_ns && game.ios_ns !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        NS: {game.ios_ns}
-                      </span>
-                    )}
-                  </div>
+              ) : (
+                <div className="ml-6">
+                  <span className="px-3 py-2 bg-zinc-900 text-white/70 rounded-lg text-sm border border-white/30">
+                    No protocols supported
+                  </span>
                 </div>
               )}
             </div>
-          </div>
+          ))}
         </div>
         <div className="space-y-3">
           {game.discord_username && (
@@ -734,89 +755,41 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Updated Platform and Protocol Information */}
+        
+        {/* Updated Protocol Information */}
         <div className="space-y-3">
-          {/* Platform Support Updates */}
-          {(update.android_tested || update.ios_tested) && (
-            <div>
-              <h4 className="text-sm font-semibold text-white mb-2">Updated Platform Support:</h4>
-              <div className="flex flex-wrap gap-2">
-                {update.android_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                    <span>📱</span> Android {update.android_tested ? '(Updated)' : ''}
-                  </span>
-                )}
-                {update.ios_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                    <span>🍎</span> iOS {update.ios_tested ? '(Updated)' : ''}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Updated Protocol Support */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-2">Updated Protocol Support:</h4>
-            <div className="space-y-2">
-              {/* Android Protocol Updates */}
-              {update.android_tested && (
-                <div>
-                  <span className="text-xs text-white/70 mb-1 block">Android Updates:</span>
-                  <div className="flex flex-wrap gap-1 ml-2">
-                    {update.android_hid && update.android_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        HID: {update.android_hid} ✨
-                      </span>
-                    )}
-                    {update.android_xinput && update.android_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        XINPUT: {update.android_xinput} ✨
-                      </span>
-                    )}
-                    {update.android_ds4 && update.android_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        DS4: {update.android_ds4} ✨
-                      </span>
-                    )}
-                    {update.android_ns && update.android_ns !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
-                        NS: {update.android_ns} ✨
-                      </span>
-                    )}
-                  </div>
+          <h4 className="text-sm font-semibold text-white mb-2">Supported Protocols (Updated):</h4>
+          {getPlatformProtocols(update).map((platform) => (
+            <div key={platform.name} className="space-y-2">
+              <div className="flex items-center gap-2">
+                {platform.icon}
+                <span className="text-sm font-medium text-white">{platform.name}</span>
+              </div>
+              
+              {platform.protocols.length > 0 ? (
+                <div className="flex flex-wrap gap-2 ml-6">
+                  {platform.protocols.map((item, index) => (
+                    <span key={`${platform.name}-${item.protocol}-${index}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border bg-zinc-900 text-white border-white/30">
+                      {getProtocolIcon(item.protocol)}
+                      <span>{item.protocol}</span>
+                      <span className="text-xs text-white/50">via</span>
+                      <div className="flex items-center gap-1">
+                        {getConnectivityIcon(item.connectivity)}
+                        <span className="text-xs">{item.connectivity}</span>
+                      </div>
+                    </span>
+                  ))}
                 </div>
-              )}
-
-              {/* iOS Protocol Updates */}
-              {update.ios_tested && (
-                <div>
-                  <span className="text-xs text-white/70 mb-1 block">iOS Updates:</span>
-                  <div className="flex flex-wrap gap-1 ml-2">
-                    {update.ios_hid && update.ios_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        HID: {update.ios_hid} ✨
-                      </span>
-                    )}
-                    {update.ios_xinput && update.ios_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        XINPUT: {update.ios_xinput} ✨
-                      </span>
-                    )}
-                    {update.ios_ds4 && update.ios_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        DS4: {update.ios_ds4} ✨
-                      </span>
-                    )}
-                    {update.ios_ns && update.ios_ns !== 'None' && (
-                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
-                        NS: {update.ios_ns} ✨
-                      </span>
-                    )}
-                  </div>
+              ) : (
+                <div className="ml-6">
+                  <span className="px-3 py-2 bg-zinc-900 text-white/70 rounded-lg text-sm border border-white/30">
+                    No protocols supported
+                  </span>
                 </div>
               )}
             </div>
+          ))}
           </div>
         </div>
         <div className="space-y-3">
@@ -952,11 +925,11 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
       {/* Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col xl:flex-row gap-4 mb-6">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setCurrentView('pending')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm grow ${
                 currentView === 'pending'
                   ? 'bg-red-600 text-white'
                   : 'bg-black text-white border border-white/30 hover:bg-white/5'
@@ -966,7 +939,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </button>
             <button
               onClick={() => setCurrentView('updates')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm grow ${
                 currentView === 'updates'
                   ? 'bg-red-600 text-white'
                   : 'bg-black text-white border border-white/30 hover:bg-white/5'
@@ -976,7 +949,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </button>
             <button
               onClick={() => setCurrentView('approved')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm grow ${
                 currentView === 'approved'
                   ? 'bg-red-600 text-white'
                   : 'bg-black text-white border border-white/30 hover:bg-white/5'
@@ -986,7 +959,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </button>
             <button
               onClick={() => setCurrentView('rejected')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm grow ${
                 currentView === 'rejected'
                   ? 'bg-red-600 text-white'
                   : 'bg-black text-white border border-white/30 hover:bg-white/5'
@@ -996,13 +969,13 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </button>
             <button
               onClick={() => setCurrentView('controllers')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm grow ${
                 currentView === 'controllers'
                   ? 'bg-red-600 text-white'
                   : 'bg-black text-white border border-white/30 hover:bg-white/5'
               }`}
             >
-              Controllers ({controllers.length})
+              Controllers ({filteredControllers.length})
             </button>
           </div>
           
@@ -1018,7 +991,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 placeholder="Search..."
                 className="pl-10 pr-4 py-2 border border-white/30 rounded-lg 
                            text-white placeholder-white/50 bg-black focus:outline-none focus:ring-2 
-                           focus:ring-red-500 focus:border-red-500 transition-all duration-200 text-sm"
+                           focus:ring-red-500 focus:border-red-500 transition-all duration-200 text-sm w-full"
               />
             </div>
             {currentView === 'controllers' && (
@@ -1093,12 +1066,12 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
 
               {currentView === 'controllers' && (
                 <div className="grid gap-6">
-                  {controllers.length === 0 ? (
+                  {filteredControllers.length === 0 ? (
                     <div className="text-center py-12">
                       <p className="text-white/70">No controllers</p>
                     </div>
                   ) : (
-                    controllers.map(controller => (
+                    filteredControllers.map(controller => (
                       <div key={controller.id} className="bg-black border border-white/30 rounded-xl p-4 md:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
@@ -1108,7 +1081,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                               <div className="flex flex-wrap gap-2">
                                 <span className="text-sm text-white/70">Wired/2.4GHz:</span>
                                 {controller.wired_protocols.map(protocol => (
-                                  <span key={protocol} className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
+                                  <span key={protocol} className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                                     {protocol}
                                   </span>
                                 ))}
@@ -1116,7 +1089,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                               <div className="flex flex-wrap gap-2">
                                 <span className="text-sm text-white/70">Bluetooth:</span>
                                 {controller.bluetooth_protocols.map(protocol => (
-                                  <span key={protocol} className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                                  <span key={protocol} className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
                                     {protocol}
                                   </span>
                                 ))}
