@@ -562,12 +562,12 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               <h4 className="text-sm font-semibold text-white mb-2">Platform Support:</h4>
               <div className="flex flex-wrap gap-2">
                 {game.android_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                  <span className="flex items-center gap-1 px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                     <span>📱</span> Android
                   </span>
                 )}
                 {game.ios_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-gray-900/30 text-gray-300 rounded text-xs border border-gray-700">
+                  <span className="flex items-center gap-1 px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                     <span>🍎</span> iOS
                   </span>
                 )}
@@ -585,17 +585,17 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   <span className="text-xs text-white/70 mb-1 block">Android:</span>
                   <div className="flex flex-wrap gap-1 ml-2">
                     {game.android_hid && game.android_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                         HID: {game.android_hid}
                       </span>
                     )}
                     {game.android_xinput && game.android_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                         XINPUT: {game.android_xinput}
                       </span>
                     )}
                     {game.android_ds4 && game.android_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                         DS4: {game.android_ds4}
                       </span>
                     )}
@@ -614,22 +614,22 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   <span className="text-xs text-white/70 mb-1 block">iOS:</span>
                   <div className="flex flex-wrap gap-1 ml-2">
                     {game.ios_hid && game.ios_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         HID: {game.ios_hid}
                       </span>
                     )}
                     {game.ios_xinput && game.ios_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         XINPUT: {game.ios_xinput}
                       </span>
                     )}
                     {game.ios_ds4 && game.ios_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         DS4: {game.ios_ds4}
                       </span>
                     )}
                     {game.ios_ns && game.ios_ns !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         NS: {game.ios_ns}
                       </span>
                     )}
@@ -722,7 +722,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               Update for: {(update as any).original_game?.name}
             </h3>
             <div className="flex flex-wrap gap-2 mb-3">
-              <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+              <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                 Game Update
               </span>
               {(update as any).edited_by_admin && (
@@ -742,12 +742,12 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               <h4 className="text-sm font-semibold text-white mb-2">Updated Platform Support:</h4>
               <div className="flex flex-wrap gap-2">
                 {update.android_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                  <span className="flex items-center gap-1 px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                     <span>📱</span> Android {update.android_tested ? '(Updated)' : ''}
                   </span>
                 )}
                 {update.ios_tested && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-gray-900/30 text-gray-300 rounded text-xs border border-gray-700">
+                  <span className="flex items-center gap-1 px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                     <span>🍎</span> iOS {update.ios_tested ? '(Updated)' : ''}
                   </span>
                 )}
@@ -765,17 +765,17 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   <span className="text-xs text-white/70 mb-1 block">Android Updates:</span>
                   <div className="flex flex-wrap gap-1 ml-2">
                     {update.android_hid && update.android_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                         HID: {update.android_hid} ✨
                       </span>
                     )}
                     {update.android_xinput && update.android_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                         XINPUT: {update.android_xinput} ✨
                       </span>
                     )}
                     {update.android_ds4 && update.android_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                         DS4: {update.android_ds4} ✨
                       </span>
                     )}
@@ -794,22 +794,22 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   <span className="text-xs text-white/70 mb-1 block">iOS Updates:</span>
                   <div className="flex flex-wrap gap-1 ml-2">
                     {update.ios_hid && update.ios_hid !== 'None' && (
-                      <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         HID: {update.ios_hid} ✨
                       </span>
                     )}
                     {update.ios_xinput && update.ios_xinput !== 'None' && (
-                      <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs border border-green-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         XINPUT: {update.ios_xinput} ✨
                       </span>
                     )}
                     {update.ios_ds4 && update.ios_ds4 !== 'None' && (
-                      <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs border border-purple-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         DS4: {update.ios_ds4} ✨
                       </span>
                     )}
                     {update.ios_ns && update.ios_ns !== 'None' && (
-                      <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                      <span className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                         NS: {update.ios_ns} ✨
                       </span>
                     )}
@@ -1108,7 +1108,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                               <div className="flex flex-wrap gap-2">
                                 <span className="text-sm text-white/70">Wired/2.4GHz:</span>
                                 {controller.wired_protocols.map(protocol => (
-                                  <span key={protocol} className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                                  <span key={protocol} className="px-2 py-1 bg-white/10 text-white rounded text-xs border border-white/30">
                                     {protocol}
                                   </span>
                                 ))}
@@ -1116,7 +1116,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                               <div className="flex flex-wrap gap-2">
                                 <span className="text-sm text-white/70">Bluetooth:</span>
                                 {controller.bluetooth_protocols.map(protocol => (
-                                  <span key={protocol} className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800">
+                                  <span key={protocol} className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
                                     {protocol}
                                   </span>
                                 ))}
