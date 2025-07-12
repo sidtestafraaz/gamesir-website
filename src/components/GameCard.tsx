@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GameControllerCompatibility } from '../lib/supabase';
 import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable, Plus } from 'lucide-react';
-import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2 } from 'react-icons/bs';
+import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsPinMap } from 'react-icons/bs';
 import { AddGameUpdateModal } from './AddGameUpdateModal';
 
 interface GameCardProps {
@@ -23,6 +23,10 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
         return <BsPlaystation className="h-3 w-3 md:h-4 md:w-4" />;
       case 'NS':
         return <BsNintendoSwitch className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'GIP':
+        return <BsMicrosoft className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'G-TOUCH':
+        return <BsPinMap className="h-3 w-3 md:h-4 md:w-4" />;
       default:
         return <BsController className="h-3 w-3 md:h-4 md:w-4" />;
     }
@@ -57,6 +61,8 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
       if (game.android_xinput) androidProtocols.push({ protocol: 'XINPUT', connectivity: game.android_xinput });
       if (game.android_ds4) androidProtocols.push({ protocol: 'DS4', connectivity: game.android_ds4 });
       if (game.android_ns) androidProtocols.push({ protocol: 'NS', connectivity: game.android_ns });
+      if (game.android_gip) androidProtocols.push({ protocol: 'GIP', connectivity: game.android_gip });
+      if (game.android_gtouch) androidProtocols.push({ protocol: 'G-TOUCH', connectivity: game.android_gtouch });
 
       platforms.push({
         name: 'Android',
@@ -73,6 +79,8 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
       if (game.ios_xinput) iosProtocols.push({ protocol: 'XINPUT', connectivity: game.ios_xinput });
       if (game.ios_ds4) iosProtocols.push({ protocol: 'DS4', connectivity: game.ios_ds4 });
       if (game.ios_ns) iosProtocols.push({ protocol: 'NS', connectivity: game.ios_ns });
+      if (game.ios_gip) iosProtocols.push({ protocol: 'GIP', connectivity: game.ios_gip });
+      if (game.ios_gtouch) iosProtocols.push({ protocol: 'G-TOUCH', connectivity: game.ios_gtouch });
 
       platforms.push({
         name: 'iOS',
