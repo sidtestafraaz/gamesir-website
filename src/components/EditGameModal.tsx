@@ -7,7 +7,7 @@ import { ProtocolSelector } from './ProtocolSelector';
 interface EditGameModalProps {
   game: Game;
   controllers: Controller[];
-  onSave: (gameId: string, updatedData: any, approveAfterSave?: boolean) => void;
+  onSave: (gameId: string, updatedData: any, approveAfterSave?: boolean, testing_controller_ids?: string[]) => void;
   onClose: () => void;
 }
 
