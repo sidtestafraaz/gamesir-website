@@ -14,12 +14,15 @@ interface FormData {
     XINPUT: boolean;
     DS4: boolean;
     NS: boolean;
+    'G-TOUCH': boolean;
+    GIP: boolean;
   };
   bluetoothProtocols: {
     HID: boolean;
     XINPUT: boolean;
     DS4: boolean;
     NS: boolean;
+    'G-TOUCH': boolean;
   };
 }
 
@@ -32,12 +35,15 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
       XINPUT: false,
       DS4: false,
       NS: false
+      'G-TOUCH': false,
+      GIP: false
     },
     bluetoothProtocols: {
       HID: false,
       XINPUT: false,
       DS4: false,
       NS: false
+      'G-TOUCH': false
     }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -150,7 +156,9 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
     { key: 'HID', label: 'HID', description: 'Human Interface Device' },
     { key: 'XINPUT', label: 'XINPUT', description: 'Xbox Input API' },
     { key: 'DS4', label: 'DS4', description: 'DualShock 4 Protocol' },
-    { key: 'NS', label: 'NS', description: 'Nintendo Switch Protocol' }
+    { key: 'NS', label: 'NS', description: 'Nintendo Switch Protocol' },
+    { key: 'G-TOUCH', label: 'G-Touch', description: 'GameSir G-Touch Protocol' },
+    { key: 'GIP', label: 'GIP', description: 'GameInput Protocol' }
   ] as const;
 
   return (

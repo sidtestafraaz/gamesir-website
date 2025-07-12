@@ -8,6 +8,8 @@ interface ProtocolSelectorProps {
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   onChange: (protocol: string, value: string) => void;
   title: string;
@@ -43,6 +45,18 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
       label: 'NS', 
       description: 'Nintendo Switch Protocol',
       icon: <BsNintendoSwitch className="h-3 w-3" />
+    },
+    { 
+      key: 'gtouch', 
+      label: 'G-Touch', 
+      description: 'GameSir G-Touch Protocol',
+      icon: <BsController className="h-3 w-3 md:h-4 md:w-4" />
+    },
+    { 
+      key: 'gip', 
+      label: 'GIP', 
+      description: 'GameInput Protocol',
+      icon: <BsController className="h-3 w-3 md:h-4 md:w-4" />
     }
   ];
 

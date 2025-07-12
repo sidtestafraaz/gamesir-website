@@ -24,12 +24,16 @@ interface CustomGameData {
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   iosProtocols: {
     hid: string;
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   testingControllerIds: string[];
   notes: string;
@@ -55,12 +59,16 @@ export const CustomGameForm: React.FC<CustomGameFormProps> = ({
       xinput: '',
       ds4: '',
       ns: ''
+      gtouch: '',
+      gip: ''
     },
     iosProtocols: {
       hid: '',
       xinput: '',
       ds4: '',
       ns: ''
+      gtouch: '',
+      gip: ''
     },
     testingControllerIds: [],
     notes: '',

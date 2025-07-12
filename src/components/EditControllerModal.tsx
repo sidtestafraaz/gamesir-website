@@ -20,13 +20,16 @@ export const EditControllerModal: React.FC<EditControllerModalProps> = ({
       HID: controller.wired_protocols.includes('HID'),
       XINPUT: controller.wired_protocols.includes('XINPUT'),
       DS4: controller.wired_protocols.includes('DS4'),
-      NS: controller.wired_protocols.includes('NS')
+      NS: controller.wired_protocols.includes('NS'),
+      'G-TOUCH': controller.wired_protocols.includes('G-TOUCH'),
+      GIP: controller.wired_protocols.includes('GIP')
     },
     bluetoothProtocols: {
       HID: controller.bluetooth_protocols.includes('HID'),
       XINPUT: controller.bluetooth_protocols.includes('XINPUT'),
       DS4: controller.bluetooth_protocols.includes('DS4'),
-      NS: controller.bluetooth_protocols.includes('NS')
+      NS: controller.bluetooth_protocols.includes('NS'),
+      'G-TOUCH': controller.bluetooth_protocols.includes('G-TOUCH')
     }
   });
 
@@ -79,7 +82,9 @@ export const EditControllerModal: React.FC<EditControllerModalProps> = ({
     { key: 'HID', label: 'HID', description: 'Human Interface Device' },
     { key: 'XINPUT', label: 'XINPUT', description: 'Xbox Input API' },
     { key: 'DS4', label: 'DS4', description: 'DualShock 4 Protocol' },
-    { key: 'NS', label: 'NS', description: 'Nintendo Switch Protocol' }
+    { key: 'NS', label: 'NS', description: 'Nintendo Switch Protocol' },
+    { key: 'G-TOUCH', label: 'G-Touch', description: 'GameSir G-Touch Protocol' },
+    { key: 'GIP', label: 'GIP', description: 'GameInput Protocol' }
   ] as const;
 
   return (
