@@ -84,7 +84,9 @@ export const useGameSearch = () => {
         HID: game.android_hid,
         XINPUT: game.android_xinput,
         DS4: game.android_ds4,
-        NS: game.android_ns
+        NS: game.android_ns,
+        GIP: game.android_gip,
+        'G-TOUCH': game.android_gtouch
       };
 
       Object.entries(androidProtocols).forEach(([protocol, connectivity]) => {
@@ -119,7 +121,9 @@ export const useGameSearch = () => {
         HID: game.ios_hid,
         XINPUT: game.ios_xinput,
         DS4: game.ios_ds4,
-        NS: game.ios_ns
+        NS: game.ios_ns,
+        GIP: game.ios_gip,
+        'G-TOUCH': game.ios_gtouch
       };
 
       Object.entries(iosProtocols).forEach(([protocol, connectivity]) => {
@@ -222,7 +226,7 @@ export const useGameSearch = () => {
 
         return {
           game,
-          is_supported: true,
+          is_supported: "true",
           supported_protocols: allProtocols,
           connectivity_modes: [],
           testing_controller: (game as any).testing_controller,
@@ -235,7 +239,7 @@ export const useGameSearch = () => {
       return {
         game,
         controller: selectedController,
-        is_supported: compatibleProtocols.length > 0,
+        is_supported: compatibleProtocols.length > 0 ? (compatibleProtocols.filter(x => x.protocol == "G-TOUCH").length == compatibleProtocols.length ? "gtouch-only" : "true") : "false",
         supported_protocols: compatibleProtocols,
         connectivity_modes: [...new Set(compatibleProtocols.map(p => p.connectivity))],
         testing_controller: (game as any).testing_controller,
