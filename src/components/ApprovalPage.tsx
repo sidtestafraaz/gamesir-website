@@ -1019,7 +1019,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </button>
           </div>
           
-          <div className="flex flex-row gap-2 sm:ml-auto">
+          <div className="flex flex-row gap-2 xl:ml-auto">
             <div className="relative grow">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-white/50" />
@@ -1035,14 +1035,24 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               />
             </div>
             {currentView === 'controllers' && (
+              <>
               <button
                 onClick={() => setShowAddController(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
                            text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
               >
                 <Plus className="h-4 w-4" />
                 Add Controller
               </button>
+              <button
+                title='Add New Controller'
+                onClick={() => setShowAddController(true)}
+                className="flex sm:hidden items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
+                           text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+              </>
             )}
             <button
               onClick={() => setShowExportModal(true)}
