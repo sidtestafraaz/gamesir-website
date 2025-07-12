@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GameControllerCompatibility } from '../lib/supabase';
 import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable, Plus } from 'lucide-react';
-import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsFillHandIndexFill } from 'react-icons/bs';
+import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsFillHandIndexFill, BsExclamationCircle, BsExclamation, BsExclamationDiamond, BsExclamationOctagon, BsExclamationCircleFill } from 'react-icons/bs';
 import { AddGameUpdateModal } from './AddGameUpdateModal';
 
 interface GameCardProps {
@@ -159,17 +159,22 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
             
             {controller && (
               <div className="flex items-center gap-2 md:ml-4 flex-shrink-0">
-                {is_supported ? (
+                {is_supported == "true" ? (
                   <div className="flex items-center gap-2 px-3 py-1 bg-red-900/30 text-red-400 rounded-lg border border-red-800">
                     <CheckCircle className="h-4 w-4 md:h-5 md:w-5" />
                     <span className="text-sm font-medium">Compatible</span>
+                  </div>
+                ) : (is_supported == "gtouch-only" ?  (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-yellow-900/30 text-yellow-400 rounded-lg border border-yellow-800">
+                    <BsExclamationCircle className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-sm font-medium">Only with G-TOUCH</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-lg border border-white/30">
                     <XCircle className="h-4 w-4 md:h-5 md:w-5" />
                     <span className="text-sm font-medium">Not Compatible</span>
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>
