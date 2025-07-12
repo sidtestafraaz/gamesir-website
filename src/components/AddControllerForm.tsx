@@ -34,7 +34,7 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
       HID: false,
       XINPUT: false,
       DS4: false,
-      NS: false
+      NS: false,
       'G-TOUCH': false,
       GIP: false
     },
@@ -42,7 +42,7 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
       HID: false,
       XINPUT: false,
       DS4: false,
-      NS: false
+      NS: false,
       'G-TOUCH': false
     }
   });
