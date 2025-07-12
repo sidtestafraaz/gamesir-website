@@ -6,7 +6,7 @@ import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { AddControllerForm } from './AddControllerForm';
 import { EditControllerModal } from './EditControllerModal';
-import { BsAndroid2, BsApple, BsController, BsMicrosoft, BsNintendoSwitch, BsPinMap, BsPlaystation, BsXbox } from 'react-icons/bs';
+import { BsAndroid2, BsApple, BsController, BsMicrosoft, BsNintendoSwitch, BsFillHandIndexFill, BsPlaystation, BsXbox } from 'react-icons/bs';
 import { ExportDataModal } from './ExportDataModal';
 import { TbTableExport } from 'react-icons/tb';
 
@@ -458,7 +458,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       case 'GIP':
         return <BsMicrosoft className="h-3 w-3 md:h-4 md:w-4" />;
       case 'G-TOUCH':
-        return <BsPinMap className="h-3 w-3 md:h-4 md:w-4" />;
+        return <BsFillHandIndexFill className="h-3 w-3 md:h-4 md:w-4" />;
       default:
         return <BsController className="h-3 w-3 md:h-4 md:w-4" />;
     }
