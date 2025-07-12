@@ -20,13 +20,13 @@ export type Game = {
   is_approved?: boolean;
   approved_by?: string;
   approved_at?: string;
+  rejected_by?: string;
+  rejected_reason?:string;
+  rejected_at?: string;
   testing_controller_id?: string;
   testing_controller_ids?: string[];
   testing_notes?: string;
   discord_username?: string;
-  rejected_reason?: string;
-  rejected_by?: string;
-  rejected_at?: string;
   // New Android/iOS testing fields
   android_tested?: boolean;
   ios_tested?: boolean;
@@ -38,6 +38,10 @@ export type Game = {
   ios_xinput?: string;
   ios_ds4?: string;
   ios_ns?: string;
+  edited_by_admin?: boolean;
+  edited_at?: string;
+  testing_controllers?: Controller[];
+  testing_controller?: Controller;
 };
 
 export type GameUpdate = {
@@ -66,6 +70,8 @@ export type GameUpdate = {
   created_at?: string;
   edited_by_admin?: boolean;
   edited_at?: string;
+  testing_controllers?: Controller[];
+  testing_controller: Controller;
 };
 
 export type Controller = {
