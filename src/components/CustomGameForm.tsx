@@ -139,10 +139,14 @@ export const CustomGameForm: React.FC<CustomGameFormProps> = ({
       android_xinput: formData.androidTested ? formData.androidProtocols.xinput || null : null,
       android_ds4: formData.androidTested ? formData.androidProtocols.ds4 || null : null,
       android_ns: formData.androidTested ? formData.androidProtocols.ns || null : null,
+      android_gip: formData.androidTested ? formData.androidProtocols.gip || null : null,
+      android_gtouch: formData.androidTested ? formData.androidProtocols.gtouch || null : null,
       ios_hid: formData.iosTested ? formData.iosProtocols.hid || null : null,
       ios_xinput: formData.iosTested ? formData.iosProtocols.xinput || null : null,
       ios_ds4: formData.iosTested ? formData.iosProtocols.ds4 || null : null,
       ios_ns: formData.iosTested ? formData.iosProtocols.ns || null : null,
+      ios_gip: formData.iosTested ? formData.iosProtocols.gip || null : null,
+      ios_gtouch: formData.iosTested ? formData.iosProtocols.gtouch || null : null,
     };
 
     onSubmit(gameData);
