@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GameControllerCompatibility } from '../lib/supabase';
 import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable, Plus } from 'lucide-react';
-import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsFillPinMapFill } from 'react-icons/bs';
+import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsJoystick } from 'react-icons/bs';
 import { AddGameUpdateModal } from './AddGameUpdateModal';
 
 interface GameCardProps {
@@ -26,7 +26,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
       case 'GIP':
         return <BsMicrosoft className="h-3 w-3 md:h-4 md:w-4" />;
       case 'G-TOUCH':
-        return <BsFillPinMapFill className="h-3 w-3 md:h-4 md:w-4" />;
+        return <BsJoystick className="h-3 w-3 md:h-4 md:w-4" />;
       default:
         return <BsController className="h-3 w-3 md:h-4 md:w-4" />;
     }
