@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth, Gamepad2} from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth, Gamepad2, Download} from 'lucide-react';
 import { supabase, Game, GameUpdate, Controller, Approver } from '../lib/supabase';
 import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { AddControllerForm } from './AddControllerForm';
 import { EditControllerModal } from './EditControllerModal';
+import { ExportDataModal } from './ExportDataModal';
 import { BsAndroid2, BsApple, BsController, BsNintendoSwitch, BsPlaystation, BsXbox } from 'react-icons/bs';
 
 interface ApprovalPageProps {
@@ -29,6 +30,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [tokenError, setTokenError] = useState('');
   const [editingController, setEditingController] = useState<Controller | null>(null);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -1033,6 +1035,15 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 Add Controller
               </button>
             )}
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
+                         text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap
+                         border border-white/30 hover:border-white/50"
+            >
+              <Download className="h-4 w-4" />
+              Export Data
+            </button>
           </div>
         </div>
 
@@ -1186,6 +1197,12 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           controller={editingController}
           onSave={handleEditController}
           onClose={() => setEditingController(null)}
+        />
+      )}
+
+      {showExportModal && (
+        <ExportDataModal
+          onClose={() => setShowExportModal(false)}
         />
       )}
     </div>
