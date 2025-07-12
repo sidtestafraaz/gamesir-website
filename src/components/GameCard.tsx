@@ -108,7 +108,8 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
   };
 
   const platformProtocols = getPlatformProtocols();
-  const hasTestingInfo = testing_controller || testing_controllers?.length > 0 || game.discord_username || game.testing_notes || game.approved_by || game.created_at || (game as any).edited_by_admin;
+  const hasTestingInfo = testing_controller || (testing_controllers && testing_controllers.length > 0) || game.discord_username || game.testing_notes || game.approved_by || game.created_at || (game as any).edited_by_admin;
+  const controllerSupportedProtocols = controller?.supported_protocols;
 
   return (
     <div className="bg-black border border-white/30 rounded-xl p-4 md:p-6 hover:border-white/50 
@@ -239,8 +240,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
                       <span
                         key={protocol}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border
-                                   ${controller 
-                                     && controller.supported_protocols.includes(protocol)
+                                   ${(controllerSupportedProtocols && controllerSupportedProtocols.includes(protocol))
                                        ? 'bg-red-900/30 text-red-400 border-red-800'
                                      : 'bg-zinc-900 text-white border-white/30'
                                    }`}
@@ -286,12 +286,12 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
                         </div>
                       )}
                       
-                      {(testing_controllers?.length > 0 || testing_controller) && (
+                      {((testing_controllers && testing_controllers.length > 0) || testing_controller) && (
                         <div className="flex items-center gap-2">
                           <Gamepad2 className="h-4 w-4 text-white/50" />
                           <span className="text-white text-sm">
-                            Tested with: {testing_controllers?.length > 0 
-                              ? testing_controllers.map((c: any) => c.name).join(', ')
+                            Tested with: {(testing_controllers && testing_controllers.length > 0) 
+                              ? testing_controllers?.map((c: any) => c.name).join(', ')
                               : testing_controller?.name || 'Unknown controller'
                             }
                           </span>
