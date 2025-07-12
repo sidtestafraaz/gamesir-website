@@ -131,13 +131,16 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
             HID: false,
             XINPUT: false,
             DS4: false,
-            NS: false
+            NS: false,
+            'G-TOUCH': false,
+            GIP: false
           },
           bluetoothProtocols: {
             HID: false,
             XINPUT: false,
             DS4: false,
-            NS: false
+            NS: false,
+            'G-TOUCH': false
           }
         });
         setSubmitStatus('idle');
@@ -152,13 +155,21 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
     }
   };
 
-  const protocols = [
+  const wiredProtocols = [
     { key: 'HID', label: 'HID', description: 'Human Interface Device' },
     { key: 'XINPUT', label: 'XINPUT', description: 'Xbox Input API' },
     { key: 'DS4', label: 'DS4', description: 'DualShock 4 Protocol' },
     { key: 'NS', label: 'NS', description: 'Nintendo Switch Protocol' },
-    { key: 'G-TOUCH', label: 'G-Touch', description: 'GameSir G-Touch Protocol' },
-    { key: 'GIP', label: 'GIP', description: 'GameInput Protocol' }
+    { key: 'GIP', label: 'GIP', description: 'Gaming Input Protocol' },
+    { key: 'G-TOUCH', label: 'G-Touch', description: 'GameSir G-Touch' }
+  ] as const;
+
+  const bluetoothProtocols = [
+    { key: 'HID', label: 'HID', description: 'Human Interface Device' },
+    { key: 'XINPUT', label: 'XINPUT', description: 'Xbox Input API' },
+    { key: 'DS4', label: 'DS4', description: 'DualShock 4 Protocol' },
+    { key: 'NS', label: 'NS', description: 'Nintendo Switch Protocol' },
+    { key: 'G-TOUCH', label: 'G-Touch', description: 'GameSir G-Touch' },
   ] as const;
 
   return (
@@ -238,7 +249,7 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {protocols.map(({ key, label, description }) => (
+                {wiredProtocols.map(({ key, label, description }) => (
                   <div key={`wired-${key}`} className="relative">
                     <input
                       id={`wired-${key}`}
@@ -283,7 +294,7 @@ export const AddControllerForm: React.FC<AddControllerFormProps> = ({ onBack }) 
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {protocols.map(({ key, label, description }) => (
+                {bluetoothProtocols.map(({ key, label, description }) => (
                   <div key={`bluetooth-${key}`} className="relative">
                     <input
                       id={`bluetooth-${key}`}
