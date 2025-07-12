@@ -41,6 +41,9 @@ export const ExportDataModal: React.FC<ExportDataModalProps> = ({ onClose }) => 
           if (game.android_xinput) androidProtocols.push(`XINPUT (${game.android_xinput})`);
           if (game.android_ds4) androidProtocols.push(`DS4 (${game.android_ds4})`);
           if (game.android_ns) androidProtocols.push(`NS (${game.android_ns})`);
+          if (game.android_gip) androidProtocols.push(`GIP (${game.android_gip})`);
+          if (game.android_gtouch) androidProtocols.push(`G-TOUCH (${game.android_gtouch})`);
+          
         }
 
         // iOS protocols
@@ -50,6 +53,8 @@ export const ExportDataModal: React.FC<ExportDataModalProps> = ({ onClose }) => 
           if (game.ios_xinput) iosProtocols.push(`XINPUT (${game.ios_xinput})`);
           if (game.ios_ds4) iosProtocols.push(`DS4 (${game.ios_ds4})`);
           if (game.ios_ns) iosProtocols.push(`NS (${game.ios_ns})`);
+          if (game.ios_gip) iosProtocols.push(`GIP (${game.ios_gip})`);
+          if (game.ios_gtouch) iosProtocols.push(`G-TOUCH (${game.ios_gtouch})`);
         }
 
         return {
@@ -119,8 +124,8 @@ export const ExportDataModal: React.FC<ExportDataModalProps> = ({ onClose }) => 
       games.forEach(game => {
         if (game.discord_username) {
           // Handle multiple usernames separated by commas
-          const usernames = game.discord_username.split(',').map(u => u.trim());
-          usernames.forEach(username => {
+          const usernames = game.discord_username.split(',').map((u: string) => u.trim());
+          usernames.forEach((username: string) => {
             if (username) {
               if (!contributorMap.has(username)) {
                 contributorMap.set(username, []);
@@ -249,7 +254,7 @@ export const ExportDataModal: React.FC<ExportDataModalProps> = ({ onClose }) => 
               <div className="text-left">
                 <div className="font-medium">Games Data</div>
                 <div className="text-sm text-white/70">
-                  Game names, protocols, connectivity, testing info
+                  Mobile Games, Supported Protocols and Testing info
                 </div>
               </div>
             </button>
@@ -265,7 +270,7 @@ export const ExportDataModal: React.FC<ExportDataModalProps> = ({ onClose }) => 
               <div className="text-left">
                 <div className="font-medium">Controllers Data</div>
                 <div className="text-sm text-white/70">
-                  Controller names, manufacturers, supported protocols
+                  Controllers and Supported Protocols
                 </div>
               </div>
             </button>
@@ -281,7 +286,7 @@ export const ExportDataModal: React.FC<ExportDataModalProps> = ({ onClose }) => 
               <div className="text-left">
                 <div className="font-medium">Credits Data</div>
                 <div className="text-sm text-white/70">
-                  Contributors, game counts, contribution lists
+                  Game Contributors and List of Games
                 </div>
               </div>
             </button>
