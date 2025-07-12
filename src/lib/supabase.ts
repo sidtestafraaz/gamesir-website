@@ -102,7 +102,7 @@ export type Approver = {
 export type GameControllerCompatibility = {
   game: Game;
   controller?: Controller;
-  is_supported: boolean;
+  is_supported: "true" | "false" | "gtouch-only";
   supported_protocols: Array<{
     protocol: string;
     connectivity: 'Wired/2.4GHz/Bluetooth' | 'Wired/2.4GHz' | 'Bluetooth';
