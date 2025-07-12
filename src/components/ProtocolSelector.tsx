@@ -1,5 +1,5 @@
 import React from 'react';
-import { BsAndroid, BsApple, BsXbox, BsPlaystation, BsNintendoSwitch, BsController, BsMicrosoft, BsPinMap } from 'react-icons/bs';
+import { BsAndroid, BsApple, BsXbox, BsPlaystation, BsNintendoSwitch, BsController, BsMicrosoft, BsFillHandIndexFill } from 'react-icons/bs';
 
 interface ProtocolSelectorProps {
   platform: 'android' | 'ios';
@@ -50,7 +50,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
       key: 'gtouch', 
       label: 'G-Touch', 
       description: 'GameSir G-Touch Protocol',
-      icon: <BsPinMap className="h-3 w-3 md:h-4 md:w-4" />
+      icon: <BsFillHandIndexFill className="h-3 w-3 md:h-4 md:w-4" />
     },
     { 
       key: 'gip', 
