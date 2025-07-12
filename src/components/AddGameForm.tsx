@@ -47,7 +47,7 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({ onBack }) => {
       hid: '',
       xinput: '',
       ds4: '',
-      ns: ''
+      ns: '',
       gtouch: '',
       gip: ''
     },
@@ -55,7 +55,7 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({ onBack }) => {
       hid: '',
       xinput: '',
       ds4: '',
-      ns: ''
+      ns: '',
       gtouch: '',
       gip: ''
     },

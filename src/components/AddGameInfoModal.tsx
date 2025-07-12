@@ -47,7 +47,7 @@ export const AddGameInfoModal: React.FC<AddGameInfoModalProps> = ({
       hid: '',
       xinput: '',
       ds4: '',
-      ns: ''
+      ns: '',
       gtouch: '',
       gip: ''
     },
@@ -55,7 +55,7 @@ export const AddGameInfoModal: React.FC<AddGameInfoModalProps> = ({
       hid: '',
       xinput: '',
       ds4: '',
-      ns: ''
+      ns: '',
       gtouch: '',
       gip: ''
     },

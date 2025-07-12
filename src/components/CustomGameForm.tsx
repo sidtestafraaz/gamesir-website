@@ -58,7 +58,7 @@ export const CustomGameForm: React.FC<CustomGameFormProps> = ({
       hid: '',
       xinput: '',
       ds4: '',
-      ns: ''
+      ns: '',
       gtouch: '',
       gip: ''
     },
@@ -66,7 +66,7 @@ export const CustomGameForm: React.FC<CustomGameFormProps> = ({
       hid: '',
       xinput: '',
       ds4: '',
-      ns: ''
+      ns: '',
       gtouch: '',
       gip: ''
     },
