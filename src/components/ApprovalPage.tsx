@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth, Gamepad2, Download} from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth, Gamepad2} from 'lucide-react';
 import { supabase, Game, GameUpdate, Controller, Approver } from '../lib/supabase';
 import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { AddControllerForm } from './AddControllerForm';
 import { EditControllerModal } from './EditControllerModal';
+import { BsAndroid2, BsApple, BsController, BsMicrosoft, BsNintendoSwitch, BsPinMap, BsPlaystation, BsXbox } from 'react-icons/bs';
 import { ExportDataModal } from './ExportDataModal';
-import { BsAndroid2, BsApple, BsController, BsNintendoSwitch, BsPlaystation, BsXbox } from 'react-icons/bs';
+import { TbTableExport } from 'react-icons/tb';
 
 interface ApprovalPageProps {
   onBack: () => void;
@@ -414,6 +415,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       if (game.android_xinput) androidProtocols.push({ protocol: 'XINPUT', connectivity: game.android_xinput });
       if (game.android_ds4) androidProtocols.push({ protocol: 'DS4', connectivity: game.android_ds4 });
       if (game.android_ns) androidProtocols.push({ protocol: 'NS', connectivity: game.android_ns });
+      if (game.android_gip) androidProtocols.push({ protocol: 'GIP', connectivity: game.android_gip });
+      if (game.android_gtouch) androidProtocols.push({ protocol: 'G-TOUCH', connectivity: game.android_gtouch });
 
       platforms.push({
         name: 'Android',
@@ -429,6 +432,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       if (game.ios_xinput) iosProtocols.push({ protocol: 'XINPUT', connectivity: game.ios_xinput });
       if (game.ios_ds4) iosProtocols.push({ protocol: 'DS4', connectivity: game.ios_ds4 });
       if (game.ios_ns) iosProtocols.push({ protocol: 'NS', connectivity: game.ios_ns });
+      if (game.ios_gip) iosProtocols.push({ protocol: 'GIP', connectivity: game.ios_gip });
+      if (game.ios_gtouch) iosProtocols.push({ protocol: 'G-TOUCH', connectivity: game.ios_gtouch });
 
       platforms.push({
         name: 'iOS',
@@ -450,6 +455,10 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
         return <BsPlaystation className="h-3 w-3 md:h-4 md:w-4" />;
       case 'NS':
         return <BsNintendoSwitch className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'GIP':
+        return <BsMicrosoft className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'G-TOUCH':
+        return <BsPinMap className="h-3 w-3 md:h-4 md:w-4" />;
       default:
         return <BsController className="h-3 w-3 md:h-4 md:w-4" />;
     }
@@ -1010,8 +1019,8 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </button>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
-            <div className="relative">
+          <div className="flex flex-row gap-2 sm:ml-auto">
+            <div className="relative grow">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-white/50" />
               </div>
@@ -1037,12 +1046,21 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             )}
             <button
               onClick={() => setShowExportModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
                          text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap
                          border border-white/30 hover:border-white/50"
             >
-              <Download className="h-4 w-4" />
+              <TbTableExport className="h-4 w-4" />
               Export Data
+            </button>
+             <button
+              title='Export Data'
+              onClick={() => setShowExportModal(true)}
+              className="flex sm:hidden items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
+                         text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap
+                         border border-white/30 hover:border-white/50"
+            >
+              <TbTableExport className="h-4 w-4" />
             </button>
           </div>
         </div>
