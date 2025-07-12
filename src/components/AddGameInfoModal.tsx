@@ -18,12 +18,16 @@ interface FormData {
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   iosProtocols: {
     hid: string;
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   testingControllerIds: string[];
   notes: string;
@@ -44,12 +48,16 @@ export const AddGameInfoModal: React.FC<AddGameInfoModalProps> = ({
       xinput: '',
       ds4: '',
       ns: ''
+      gtouch: '',
+      gip: ''
     },
     iosProtocols: {
       hid: '',
       xinput: '',
       ds4: '',
       ns: ''
+      gtouch: '',
+      gip: ''
     },
     testingControllerIds: [],
     notes: '',
@@ -160,10 +168,14 @@ export const AddGameInfoModal: React.FC<AddGameInfoModalProps> = ({
         android_xinput: formData.androidTested ? formData.androidProtocols.xinput || null : null,
         android_ds4: formData.androidTested ? formData.androidProtocols.ds4 || null : null,
         android_ns: formData.androidTested ? formData.androidProtocols.ns || null : null,
+        android_gtouch: formData.androidTested ? formData.androidProtocols.gtouch || null : null,
+        android_gip: formData.androidTested ? formData.androidProtocols.gip || null : null,
         ios_hid: formData.iosTested ? formData.iosProtocols.hid || null : null,
         ios_xinput: formData.iosTested ? formData.iosProtocols.xinput || null : null,
         ios_ds4: formData.iosTested ? formData.iosProtocols.ds4 || null : null,
         ios_ns: formData.iosTested ? formData.iosProtocols.ns || null : null,
+        ios_gtouch: formData.iosTested ? formData.iosProtocols.gtouch || null : null,
+        ios_gip: formData.iosTested ? formData.iosProtocols.gip || null : null,
       };
 
       const { error } = await supabase

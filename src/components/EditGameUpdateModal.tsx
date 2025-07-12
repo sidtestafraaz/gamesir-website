@@ -24,13 +24,17 @@ export const EditGameUpdateModal: React.FC<EditGameUpdateModalProps> = ({
       hid: gameUpdate.android_hid || '',
       xinput: gameUpdate.android_xinput || '',
       ds4: gameUpdate.android_ds4 || '',
-      ns: gameUpdate.android_ns || ''
+      ns: gameUpdate.android_ns || '',
+      gtouch: gameUpdate.android_gtouch || '',
+      gip: gameUpdate.android_gip || ''
     },
     iosProtocols: {
       hid: gameUpdate.ios_hid || '',
       xinput: gameUpdate.ios_xinput || '',
       ds4: gameUpdate.ios_ds4 || '',
-      ns: gameUpdate.ios_ns || ''
+      ns: gameUpdate.ios_ns || '',
+      gtouch: gameUpdate.ios_gtouch || '',
+      gip: gameUpdate.ios_gip || ''
     },
     testingControllerIds: gameUpdate.testing_controller_ids || [],
     notes: gameUpdate.testing_notes || '',
@@ -69,10 +73,14 @@ export const EditGameUpdateModal: React.FC<EditGameUpdateModalProps> = ({
       android_xinput: formData.androidTested ? formData.androidProtocols.xinput || null : null,
       android_ds4: formData.androidTested ? formData.androidProtocols.ds4 || null : null,
       android_ns: formData.androidTested ? formData.androidProtocols.ns || null : null,
+      android_gtouch: formData.androidTested ? formData.androidProtocols.gtouch || null : null,
+      android_gip: formData.androidTested ? formData.androidProtocols.gip || null : null,
       ios_hid: formData.iosTested ? formData.iosProtocols.hid || null : null,
       ios_xinput: formData.iosTested ? formData.iosProtocols.xinput || null : null,
       ios_ds4: formData.iosTested ? formData.iosProtocols.ds4 || null : null,
       ios_ns: formData.iosTested ? formData.iosProtocols.ns || null : null,
+      ios_gtouch: formData.iosTested ? formData.iosProtocols.gtouch || null : null,
+      ios_gip: formData.iosTested ? formData.iosProtocols.gip || null : null,
     };
 
     onSave(gameUpdate.id, updatedData, approveAfterSave);

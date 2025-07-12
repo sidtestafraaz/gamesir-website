@@ -18,12 +18,16 @@ interface FormData {
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   iosProtocols: {
     hid: string;
     xinput: string;
     ds4: string;
     ns: string;
+    gtouch: string;
+    gip: string;
   };
   testingControllerIds: string[];
   notes: string;
@@ -43,13 +47,17 @@ export const AddGameUpdateModal: React.FC<AddGameUpdateModalProps> = ({
       hid: game.android_hid || '',
       xinput: game.android_xinput || '',
       ds4: game.android_ds4 || '',
-      ns: game.android_ns || ''
+      ns: game.android_ns || '',
+      gtouch: game.android_gtouch || '',
+      gip: game.android_gip || ''
     },
     iosProtocols: {
       hid: game.ios_hid || '',
       xinput: game.ios_xinput || '',
       ds4: game.ios_ds4 || '',
-      ns: game.ios_ns || ''
+      ns: game.ios_ns || '',
+      gtouch: game.ios_gtouch || '',
+      gip: game.ios_gip || ''
     },
     testingControllerIds: [], // Empty for new contributor
     notes: game.testing_notes || '',
@@ -137,10 +145,14 @@ export const AddGameUpdateModal: React.FC<AddGameUpdateModalProps> = ({
         android_xinput: formData.androidTested ? formData.androidProtocols.xinput || null : null,
         android_ds4: formData.androidTested ? formData.androidProtocols.ds4 || null : null,
         android_ns: formData.androidTested ? formData.androidProtocols.ns || null : null,
+        android_gtouch: formData.androidTested ? formData.androidProtocols.gtouch || null : null,
+        android_gip: formData.androidTested ? formData.androidProtocols.gip || null : null,
         ios_hid: formData.iosTested ? formData.iosProtocols.hid || null : null,
         ios_xinput: formData.iosTested ? formData.iosProtocols.xinput || null : null,
         ios_ds4: formData.iosTested ? formData.iosProtocols.ds4 || null : null,
         ios_ns: formData.iosTested ? formData.iosProtocols.ns || null : null,
+        ios_gtouch: formData.iosTested ? formData.iosProtocols.gtouch || null : null,
+        ios_gip: formData.iosTested ? formData.iosProtocols.gip || null : null,
       };
 
       const { data: insertedUpdate, error } = await supabase
