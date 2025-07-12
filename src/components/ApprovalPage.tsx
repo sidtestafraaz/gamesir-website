@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth} from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth, Gamepad2} from 'lucide-react';
 import { supabase, Game, GameUpdate, Controller, Approver } from '../lib/supabase';
 import { EditGameModal } from './EditGameModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
@@ -518,7 +518,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                     <span className="text-xs text-white/70">Access Required</span>
                   </div>
                 </div>
-                <div className="w-16"></div>
+                <div className="w-2"></div>
               </div>
             </div>
           </div>
@@ -665,6 +665,23 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             <div className="flex items-center gap-2 flex-wrap">
               <User className="h-4 w-4 text-white/50 flex-shrink-0" />
               <span className="text-white text-sm break-all">{game.discord_username}</span>
+              {game.edited_by_admin && (
+                <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs border border-red-800">
+                  Edited by Admin
+                </span>
+              )}
+            </div>
+          )}
+
+          {( (game.testing_controllers && game.testing_controllers.length > 0) || game.testing_controller) && (
+            <div className="flex items-center gap-2">
+              <Gamepad2 className="h-4 w-4 text-white/50" />
+              <span className="text-white text-sm">
+                Tested with: {( game.testing_controllers && game.testing_controllers.length > 0)
+                  ? game.testing_controllers?.map((c: any) => c.name).join(', ')
+                  : game.testing_controller?.name || 'Unknown controller'
+                }
+              </span>
             </div>
           )}
           
@@ -799,6 +816,18 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               <span className="text-white text-sm break-all">{update.discord_username}</span>
             </div>
           )}
+
+          {((update.testing_controllers && update.testing_controllers.length > 0) || update.testing_controller) && (
+            <div className="flex items-center gap-2">
+              <Gamepad2 className="h-4 w-4 text-white/50" />
+              <span className="text-white text-sm">
+                Tested with: {(update.testing_controllers && update.testing_controllers.length > 0)
+                  ? update.testing_controllers?.map((c: any) => c.name).join(', ')
+                  : update.testing_controller?.name || 'Unknown controller'
+                }
+              </span>
+            </div>
+          )}
           
           {update.testing_notes && (
             <div className="flex items-start gap-2">
@@ -917,7 +946,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                   <span className="text-xs text-white/70">{currentApprover?.name}</span>
                 </div>
               </div>
-              <div className="w-16"></div>
+              <div className="w-2"></div>
             </div>
           </div>
         </div>
