@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GameControllerCompatibility } from '../lib/supabase';
 import { Gamepad2, CheckCircle, XCircle, Shield, User, MessageSquare, Calendar, ChevronDown, ChevronUp, Bluetooth, Wifi, Edit3, Smartphone, Usb, Cable, Plus } from 'lucide-react';
-import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsFillHandIndexFill, BsExclamationCircle, BsExclamation, BsExclamationDiamond, BsExclamationOctagon, BsExclamationCircleFill } from 'react-icons/bs';
+import { BsPlaystation, BsXbox, BsNintendoSwitch, BsController, BsApple, BsAndroid2, BsMicrosoft, BsFillHandIndexFill, BsExclamationCircle} from 'react-icons/bs';
 import { AddGameUpdateModal } from './AddGameUpdateModal';
 
 interface GameCardProps {
@@ -360,7 +360,7 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
               </div>
             )}
             
-            {controller && !is_supported && (
+            {controller && is_supported == "false" && (
               <div className="p-3 bg-zinc-900 border border-white/30 rounded-lg">
                 <p className="text-sm text-white">
                   <span className="font-semibold">Testing with:</span> {controller.name}
