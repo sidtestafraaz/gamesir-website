@@ -14,6 +14,60 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
+// Authentication helper for approver tokens
+export const authenticateWithToken = async (token: string) => {
+  try {
+    // Verify token exists in approvers table
+    const { data: approver, error } = await supabase
+      .from('approvers')
+      .select('*')
+      .eq('token', token)
+      .single();
+
+    if (error || !approver) {
+      throw new Error('Invalid token');
+    }
+
+    // Store approver info in localStorage for session management
+    localStorage.setItem('approver_session', JSON.stringify({
+      id: approver.id,
+      name: approver.name,
+      token: approver.token,
+      authenticated_at: new Date().toISOString()
+    }));
+
+    return approver;
+  } catch (error) {
+    console.error('Authentication error:', error);
+    throw error;
+  }
+};
+
+// Check if user is authenticated
+export const isAuthenticated = () => {
+  try {
+    const session = localStorage.getItem('approver_session');
+    return session !== null;
+  } catch {
+    return false;
+  }
+};
+
+// Get current approver session
+export const getCurrentApprover = () => {
+  try {
+    const session = localStorage.getItem('approver_session');
+    return session ? JSON.parse(session) : null;
+  } catch {
+    return null;
+  }
+};
+
+// Sign out
+export const signOut = () => {
+  localStorage.removeItem('approver_session');
+};
+
 export type Game = {
   id: string;
   name: string;
