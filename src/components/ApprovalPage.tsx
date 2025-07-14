@@ -37,6 +37,38 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     fetchData();
   }, []);
 
+  // Sign in with Supabase using the approver token
+  const signInWithToken = async (approver: Approver) => {
+    try {
+      // Create a temporary user session using the approver token as a custom claim
+      // We'll use the approver's name as the user identifier
+      const { data, error } = await supabase.auth.signInAnonymously({
+        options: {
+          data: {
+            approver_id: approver.id,
+            approver_name: approver.name,
+            approver_token: approver.token
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Authentication error:', error);
+        // Fallback: continue without auth but track the approver
+        setIsAuthenticated(true);
+        setCurrentApprover(approver);
+        return;
+      }
+
+      setIsAuthenticated(true);
+      setCurrentApprover(approver);
+    } catch (error) {
+      console.error('Sign in error:', error);
+      // Fallback: continue without auth but track the approver
+      setIsAuthenticated(true);
+      setCurrentApprover(approver);
+    }
+  };
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -106,8 +138,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     setTokenError('');
     const approver = approvers.find(a => a.token === approverToken);
     if (approver) {
-      setIsAuthenticated(true);
-      setCurrentApprover(approver);
+      signInWithToken(approver);
     } else {
       setTokenError('Invalid access token. Please check your token and try again.');
     }
