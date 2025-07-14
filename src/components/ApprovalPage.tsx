@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Search, Calendar, User, MessageSquare, Cable, Wifi, Usb, Bluetooth, Gamepad2} from 'lucide-react';
-import { supabase, Game, GameUpdate, Controller, Approver } from '../lib/supabase';
+import { ArrowLeft, CheckCircle, XCircle, Edit, Trash2, Plus, Download, Shield, User, Calendar, MessageSquare, Gamepad2, Smartphone, Edit3, Key } from 'lucide-react';
+import { supabase, Game, Controller, GameUpdate, authenticateWithToken, isAuthenticated, getCurrentApprover, signOut } from '../lib/supabase';
 import { EditGameModal } from './EditGameModal';
+import { EditControllerModal } from './EditControllerModal';
 import { EditGameUpdateModal } from './EditGameUpdateModal';
 import { RejectGameModal } from './RejectGameModal';
 import { AddControllerForm } from './AddControllerForm';
-import { EditControllerModal } from './EditControllerModal';
-import { BsAndroid2, BsApple, BsController, BsMicrosoft, BsNintendoSwitch, BsFillHandIndexFill, BsPlaystation, BsXbox } from 'react-icons/bs';
 import { ExportDataModal } from './ExportDataModal';
+import { BsAndroid2, BsApple, BsController, BsMicrosoft, BsNintendoSwitch, BsFillHandIndexFill, BsPlaystation, BsXbox } from 'react-icons/bs';
 import { TbTableExport } from 'react-icons/tb';
 
 interface ApprovalPageProps {
@@ -18,61 +18,69 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const [games, setGames] = useState<Game[]>([]);
   const [gameUpdates, setGameUpdates] = useState<GameUpdate[]>([]);
   const [controllers, setControllers] = useState<Controller[]>([]);
-  const [approvers, setApprovers] = useState<Approver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [approverToken, setApproverToken] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentApprover, setCurrentApprover] = useState<Approver | null>(null);
+  const [currentView, setCurrentView] = useState<'pending' | 'approved' | 'rejected' | 'controllers' | 'updates'>('pending');
+  const [searchQuery, setSearchQuery] = useState('');
   const [editingGame, setEditingGame] = useState<Game | null>(null);
+  const [editingController, setEditingController] = useState<Controller | null>(null);
   const [editingGameUpdate, setEditingGameUpdate] = useState<GameUpdate | null>(null);
   const [rejectingGame, setRejectingGame] = useState<Game | null>(null);
-  const [currentView, setCurrentView] = useState<'pending' | 'approved' | 'rejected' | 'controllers' | 'updates'>('pending');
   const [showAddController, setShowAddController] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [tokenError, setTokenError] = useState('');
-  const [editingController, setEditingController] = useState<Controller | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [tokenInput, setTokenInput] = useState('');
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState(false);
+  const [currentApprover, setCurrentApprover] = useState<string>('');
+  const [authError, setAuthError] = useState('');
 
   useEffect(() => {
-    fetchData();
+    // Check if user is already authenticated
+    const authenticated = isAuthenticated();
+    setIsAuthenticatedState(authenticated);
+    
+    if (authenticated) {
+      const approver = getCurrentApprover();
+      if (approver) {
+        setCurrentApprover(approver.name);
+        fetchData();
+      }
+    } else {
+      setShowTokenModal(true);
+    }
   }, []);
 
-  // Sign in with Supabase using the approver token
-  const signInWithToken = async (approver: Approver) => {
+  const signInWithToken = async () => {
+    if (!tokenInput.trim()) {
+      setAuthError('Please enter a token');
+      return;
+    }
+
     try {
-      // Create a temporary user session using the approver token as a custom claim
-      // We'll use the approver's name as the user identifier
-      const { data, error } = await supabase.auth.signInAnonymously({
-        options: {
-          data: {
-            approver_id: approver.id,
-            approver_name: approver.name,
-            approver_token: approver.token
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Authentication error:', error);
-        // Fallback: continue without auth but track the approver
-        setIsAuthenticated(true);
-        setCurrentApprover(approver);
-        return;
-      }
-
-      setIsAuthenticated(true);
-      setCurrentApprover(approver);
+      setAuthError('');
+      const approver = await authenticateWithToken(tokenInput.trim());
+      
+      setIsAuthenticatedState(true);
+      setCurrentApprover(approver.name);
+      setShowTokenModal(false);
+      setTokenInput('');
+      fetchData();
     } catch (error) {
-      console.error('Sign in error:', error);
-      // Fallback: continue without auth but track the approver
-      setIsAuthenticated(true);
-      setCurrentApprover(approver);
+      console.error('Authentication error:', error);
+      setAuthError('Invalid token or authentication failed');
     }
   };
+
+  const handleSignOut = async () => {
+    signOut();
+    setIsAuthenticatedState(false);
+    setCurrentApprover('');
+    setShowTokenModal(true);
+  };
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [gamesResponse, gameUpdatesResponse, controllersResponse, approversResponse] = await Promise.all([
+      const [gamesResponse, gameUpdatesResponse, controllersResponse] = await Promise.all([
         supabase
           .from('games')
           .select(`
@@ -94,8 +102,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             )
           `)
           .order('created_at', { ascending: false }),
-        supabase.from('controllers').select('*').order('name'),
-        supabase.from('approvers').select('*').order('name')
+        supabase.from('controllers').select('*').order('name')
       ]);
 
       if (gamesResponse.data) {
@@ -125,7 +132,6 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       }
       
       if (controllersResponse.data) setControllers(controllersResponse.data);
-      if (approversResponse.data) setApprovers(approversResponse.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -133,24 +139,19 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
-  const handleTokenSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setTokenError('');
-    const approver = approvers.find(a => a.token === approverToken);
-    if (approver) {
-      signInWithToken(approver);
-    } else {
-      setTokenError('Invalid access token. Please check your token and try again.');
+  const handleApprove = async (gameId: string, approverName?: string) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
     }
-  };
 
-  const handleApproval = async (gameId: string, approverName: string) => {
     try {
       const { error } = await supabase
         .from('games')
         .update({
           is_approved: true,
-          approved_by: approverName,
+          approved_by: approverName || approver.name,
           approved_at: new Date().toISOString()
         })
         .eq('id', gameId);
@@ -162,123 +163,20 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
-  const handleUpdateApproval = async (updateId: string, approverName: string) => {
-    try {
-      // Get the update data
-      const { data: updateData, error: fetchError } = await supabase
-        .from('game_updates')
-        .select(`
-          *,
-          testing_controllers:game_updates_testing_controllers!game_update_id(
-            controllers(*)
-          )
-        `)
-        .eq('id', updateId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // Get the original game data
-      const { data: originalGame, error: gameError } = await supabase
-        .from('games')
-        .select(`
-          *,
-          testing_controllers:games_testing_controllers!game_id(
-            controllers(*)
-          )
-        `)
-        .eq('id', updateData.original_game_id)
-        .single();
-
-      if (gameError) throw gameError;
-
-      // Merge testing controllers
-      const originalControllerIds = ((originalGame as any).testing_controllers || [])
-        .map((tc: any) => tc.controllers?.id)
-        .filter((id: any) => id);
-      
-      const updateControllerIds = ((updateData as any).testing_controllers || [])
-        .map((tc: any) => tc.controllers?.id)
-        .filter((id: any) => id);
-
-      const mergedControllerIds = [...new Set([...originalControllerIds, ...updateControllerIds])];
-
-      // Merge discord usernames
-      const originalDiscord = originalGame.discord_username || '';
-      const updateDiscord = updateData.discord_username || '';
-      const mergedDiscord = [originalDiscord, updateDiscord]
-        .filter(name => name.trim())
-        .join(', ');
-
-      // Update the original game with merged data
-      const { error: updateError } = await supabase
-        .from('games')
-        .update({
-          android_tested: updateData.android_tested || originalGame.android_tested,
-          ios_tested: updateData.ios_tested || originalGame.ios_tested,
-          android_hid: updateData.android_hid || originalGame.android_hid,
-          android_xinput: updateData.android_xinput || originalGame.android_xinput,
-          android_ds4: updateData.android_ds4 || originalGame.android_ds4,
-          android_ns: updateData.android_ns || originalGame.android_ns,
-          ios_hid: updateData.ios_hid || originalGame.ios_hid,
-          ios_xinput: updateData.ios_xinput || originalGame.ios_xinput,
-          ios_ds4: updateData.ios_ds4 || originalGame.ios_ds4,
-          ios_ns: updateData.ios_ns || originalGame.ios_ns,
-          testing_notes: updateData.testing_notes || originalGame.testing_notes,
-          discord_username: mergedDiscord,
-          testing_controller_ids: mergedControllerIds,
-          testing_controller_id: mergedControllerIds.length > 0 ? mergedControllerIds[0] : originalGame.testing_controller_id,
-          edited_by_admin: false,
-          edited_at: new Date().toISOString()
-        })
-        .eq('id', updateData.original_game_id);
-
-      if (updateError) throw updateError;
-
-      // Update junction table for testing controllers
-      if (mergedControllerIds.length > 0) {
-        // Delete existing relationships
-        await supabase
-          .from('games_testing_controllers')
-          .delete()
-          .eq('game_id', updateData.original_game_id);
-
-        // Insert merged relationships
-        const junctionData = mergedControllerIds.map(controllerId => ({
-          game_id: updateData.original_game_id,
-          controller_id: controllerId
-        }));
-
-        await supabase
-          .from('games_testing_controllers')
-          .insert(junctionData);
-      }
-
-      // Mark the update as approved
-      const { error: approvalError } = await supabase
-        .from('game_updates')
-        .update({
-          is_approved: true,
-          approved_by: approverName,
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', updateId);
-
-      if (approvalError) throw approvalError;
-
-      await fetchData();
-    } catch (error) {
-      console.error('Error updating game update approval:', error);
+  const handleReject = async (gameId: string, reason: string) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
     }
-  };
 
-  const handleRejection = async (gameId: string, reason: string) => {
     try {
       const { error } = await supabase
         .from('games')
         .update({
+          is_approved: false,
           rejected_reason: reason,
-          rejected_by: currentApprover?.name,
+          rejected_by: approver.name,
           rejected_at: new Date().toISOString()
         })
         .eq('id', gameId);
@@ -290,13 +188,44 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
-  const handleUpdateRejection = async (updateId: string, reason: string) => {
+  const handleApproveUpdate = async (updateId: string) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('game_updates')
         .update({
+          is_approved: true,
+          approved_by: approver.name,
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', updateId);
+
+      if (error) throw error;
+      await fetchData();
+    } catch (error) {
+      console.error('Error approving update:', error);
+    }
+  };
+
+  const handleRejectUpdate = async (updateId: string, reason: string) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('game_updates')
+        .update({
+          is_approved: false,
           rejected_reason: reason,
-          rejected_by: currentApprover?.name,
+          rejected_by: approver.name,
           rejected_at: new Date().toISOString()
         })
         .eq('id', updateId);
@@ -304,33 +233,39 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       if (error) throw error;
       await fetchData();
     } catch (error) {
-      console.error('Error rejecting game update:', error);
+      console.error('Error rejecting update:', error);
     }
   };
 
-  const handleEditGame = async (gameId: string, updatedData: any, approveAfterSave = false, testingControllerIds: string[] = []) => {
+  const handleSaveGame = async (gameId: string, updatedData: any, approveAfterSave = false, testing_controller_ids?: string[]) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
+    }
+
     try {
-      const updatePayload = {
+      // Add admin edit tracking
+      const gameUpdateData = {
         ...updatedData,
         edited_by_admin: true,
-        edited_at: new Date().toISOString()
+        edited_at: new Date().toISOString(),
+        ...(approveAfterSave && {
+          is_approved: true,
+          approved_by: approver.name,
+          approved_at: new Date().toISOString()
+        })
       };
-
-      if (approveAfterSave) {
-        updatePayload.is_approved = true;
-        updatePayload.approved_by = currentApprover?.name;
-        updatePayload.approved_at = new Date().toISOString();
-      }
 
       const { error } = await supabase
         .from('games')
-        .update(updatePayload)
+        .update(gameUpdateData)
         .eq('id', gameId);
 
       if (error) throw error;
 
-      // Update testing controllers junction table
-      if (testingControllerIds.length > 0) {
+      // Update testing controllers junction table if provided
+      if (testing_controller_ids && testing_controller_ids.length > 0) {
         // Delete existing relationships
         await supabase
           .from('games_testing_controllers')
@@ -338,7 +273,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           .eq('game_id', gameId);
 
         // Insert new relationships
-        const junctionData = testingControllerIds.map(controllerId => ({
+        const junctionData = testing_controller_ids.map(controllerId => ({
           game_id: gameId,
           controller_id: controllerId
         }));
@@ -355,42 +290,50 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
-  const handleEditGameUpdate = async (updateId: string, updatedData: any, approveAfterSave = false) => {
+  const handleSaveGameUpdate = async (updateId: string, updatedData: any, approveAfterSave = false) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
+    }
+
     try {
-      const updatePayload = {
+      // Add admin edit tracking
+      const updateData = {
         ...updatedData,
         edited_by_admin: true,
-        edited_at: new Date().toISOString()
+        edited_at: new Date().toISOString(),
+        ...(approveAfterSave && {
+          is_approved: true,
+          approved_by: approver.name,
+          approved_at: new Date().toISOString()
+        })
       };
 
-      if (approveAfterSave) {
-        await handleUpdateApproval(updateId, currentApprover?.name || 'Admin');
-      } else {
-        const { error } = await supabase
-          .from('game_updates')
-          .update(updatePayload)
-          .eq('id', updateId);
+      const { error } = await supabase
+        .from('game_updates')
+        .update(updateData)
+        .eq('id', updateId);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // Update testing controllers junction table
-        if (updatedData.testing_controller_ids && updatedData.testing_controller_ids.length > 0) {
-          // Delete existing relationships
-          await supabase
-            .from('game_updates_testing_controllers')
-            .delete()
-            .eq('game_update_id', updateId);
+      // Update testing controllers junction table if provided
+      if (updatedData.testing_controller_ids && updatedData.testing_controller_ids.length > 0) {
+        // Delete existing relationships
+        await supabase
+          .from('game_updates_testing_controllers')
+          .delete()
+          .eq('game_update_id', updateId);
 
-          // Insert new relationships
-          const junctionData = updatedData.testing_controller_ids.map((controllerId: string) => ({
-            game_update_id: updateId,
-            controller_id: controllerId
-          }));
+        // Insert new relationships
+        const junctionData = updatedData.testing_controller_ids.map((controllerId: string) => ({
+          game_update_id: updateId,
+          controller_id: controllerId
+        }));
 
-          await supabase
-            .from('game_updates_testing_controllers')
-            .insert(junctionData);
-        }
+        await supabase
+          .from('game_updates_testing_controllers')
+          .insert(junctionData);
       }
 
       setEditingGameUpdate(null);
@@ -400,23 +343,13 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
     }
   };
 
-  const handleDeleteController = async (controllerId: string) => {
-    if (!confirm('Are you sure you want to delete this controller?')) return;
-    
-    try {
-      const { error } = await supabase
-        .from('controllers')
-        .delete()
-        .eq('id', controllerId);
-
-      if (error) throw error;
-      await fetchData();
-    } catch (error) {
-      console.error('Error deleting controller:', error);
+  const handleSaveController = async (controllerId: string, updatedData: any) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
     }
-  };
 
-  const handleEditController = async (controllerId: string, updatedData: any) => {
     try {
       const { error } = await supabase
         .from('controllers')
@@ -430,7 +363,144 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       console.error('Error updating controller:', error);
     }
   };
-  
+
+  const handleDeleteController = async (controllerId: string) => {
+    const approver = getCurrentApprover();
+    if (!approver) {
+      setAuthError('Authentication required');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this controller? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('controllers')
+        .delete()
+        .eq('id', controllerId);
+
+      if (error) throw error;
+      await fetchData();
+    } catch (error) {
+      console.error('Error deleting controller:', error);
+    }
+  };
+
+  // Show token modal if not authenticated
+  if (!isAuthenticatedState) {
+    return (
+      <div className="min-h-screen bg-black">
+        {/* Header */}
+        <header className="bg-black border-b border-white/20 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <button
+                onClick={onBack}
+                className="flex items-center gap-3 text-white hover:text-white transition-colors
+                           px-4 py-2 rounded-lg hover:bg-white/5 border border-white/20"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="font-medium">Back to Database</span>
+              </button>
+              <div className="flex items-center gap-4">
+                <img 
+                  src="/image.png" 
+                  alt="GameSir" 
+                  className="h-8 w-auto"
+                />
+                <div className="h-8 w-px bg-white/20"></div>
+                <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+              </div>
+              <div className="w-32"></div>
+            </div>
+          </div>
+        </header>
+
+        {/* Token Modal */}
+        {showTokenModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-black border border-white/30 rounded-xl p-6 w-full max-w-md">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-red-900/20 rounded-lg flex items-center justify-center border border-red-800">
+                  <Key className="h-5 w-5 text-red-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Admin Access Required</h2>
+                  <p className="text-sm text-white/70">Enter your access token to continue</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="token" className="block text-sm font-medium text-white mb-2">
+                    Access Token
+                  </label>
+                  <input
+                    type="password"
+                    id="token"
+                    value={tokenInput}
+                    onChange={(e) => setTokenInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && signInWithToken()}
+                    className="w-full px-3 py-2 border border-white/30 rounded-lg 
+                               text-white placeholder-white/50 bg-black focus:outline-none focus:ring-2 
+                               focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                    placeholder="Enter your token"
+                    autoFocus
+                  />
+                  {authError && (
+                    <p className="text-red-400 text-sm mt-2">{authError}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={onBack}
+                    className="flex-1 px-4 py-2 bg-black hover:bg-black/80 text-white font-medium 
+                               rounded-lg transition-all duration-200 border border-white/30"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={signInWithToken}
+                    disabled={!tokenInput.trim()}
+                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 
+                               text-white font-medium rounded-lg transition-all duration-200 
+                               disabled:cursor-not-allowed"
+                  >
+                    Access Panel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (showAddController) {
+    return <AddControllerForm onBack={() => setShowAddController(false)} />;
+  }
+
+  const filteredGames = games.filter(game => 
+    game.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredGameUpdates = gameUpdates.filter(update => 
+    (update as any).original_game?.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredControllers = controllers.filter(controller => 
+    controller.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const pendingGames = filteredGames.filter(game => !game.is_approved && !game.rejected_reason);
+  const approvedGames = filteredGames.filter(game => game.is_approved);
+  const rejectedGames = filteredGames.filter(game => game.rejected_reason);
+  const pendingUpdates = filteredGameUpdates.filter(update => !update.is_approved && !update.rejected_reason);
+
   const getPlatformProtocols = (game: Game | GameUpdate) => {
     const platforms: Array<{
       name: string;
@@ -455,6 +525,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
         protocols: androidProtocols
       });
     }
+
     // iOS protocols
     if (game.ios_tested) {
       const iosProtocols: Array<{ protocol: string; connectivity: string }> = [];
@@ -479,7 +550,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const getProtocolIcon = (protocol: string) => {
     switch (protocol.toUpperCase()) {
       case 'HID':
-        return <Cable className="h-3 w-3 md:h-4 md:w-4" />;
+        return <Shield className="h-3 w-3 md:h-4 md:w-4" />;
       case 'XINPUT':
         return <BsXbox className="h-3 w-3 md:h-4 md:w-4" />;
       case 'DS4':
@@ -498,159 +569,15 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
   const getConnectivityIcon = (connectivity: string) => {
     switch (connectivity) {
       case 'Wired/2.4GHz/Bluetooth':
-        return <Wifi className="h-3 w-3" />;
+        return <Smartphone className="h-3 w-3" />;
       case 'Wired/2.4GHz':
-        return <Usb className="h-3 w-3" />;
+        return <Smartphone className="h-3 w-3" />;
       case 'Bluetooth':
-        return <Bluetooth className="h-3 w-3" />;
+        return <Smartphone className="h-3 w-3" />;
       default:
-        return <Wifi className="h-3 w-3" />;
+        return <Smartphone className="h-3 w-3" />;
     }
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-black">
-        {/* Header */}
-        <header className="bg-black border-b border-white/20 shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Desktop Header */}
-            <div className="hidden lg:flex items-center justify-between h-16">
-              <button
-                onClick={onBack}
-                className="flex items-center gap-3 text-white hover:text-white transition-colors
-                           px-4 py-2 rounded-lg hover:bg-white/5 border border-white/20"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="font-medium">Back to Database</span>
-              </button>
-              <div className="flex items-center gap-4">
-                <img 
-                  src="/image.png" 
-                  alt="GameSir" 
-                  className="h-8 w-auto"
-                />
-                <div className="h-8 w-px bg-white/20"></div>
-                <h1 className="text-xl font-bold text-white">Admin Panel</h1>
-              </div>
-              <div className="w-32"></div>
-            </div>
-
-            {/* Mobile Header */}
-            <div className="lg:hidden">
-              <div className="flex items-center justify-between h-16">
-                <button
-                  onClick={onBack}
-                  className="flex items-center gap-2 text-white hover:text-white transition-colors
-                             px-3 py-2 rounded-lg hover:bg-white/5 border border-white/20"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </button>
-                <div className="flex items-center gap-2">
-                  <img 
-                    src="/image.png" 
-                    alt="GameSir" 
-                    className="h-6 w-auto"
-                  />
-                  <div className="h-8 w-px bg-white/20"></div>
-                  <div className="flex flex-col">
-                    <h1 className="text-sm font-bold text-white leading-tight">
-                      Admin Panel
-                    </h1>
-                    <span className="text-xs text-white/70">Access Required</span>
-                  </div>
-                </div>
-                <div className="w-2"></div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Access Token Form */}
-        <main className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="bg-black border border-white/30 rounded-xl p-6 md:p-8 shadow-lg">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-800">
-                <User className="h-8 w-8 text-red-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Admin Access Required</h2>
-            </div>
-            
-            <form onSubmit={handleTokenSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="token" className="block text-sm font-semibold text-white mb-3">
-                  Admin Token
-                </label>
-                <input
-                  type="password"
-                  id="token"
-                  value={approverToken}
-                  onChange={(e) => setApproverToken(e.target.value)}
-                  className="w-full px-4 py-3 border border-white/30 rounded-lg 
-                             text-white placeholder-white/50 bg-black focus:outline-none focus:ring-2 
-                             focus:ring-red-500 focus:border-red-500 transition-all duration-200"
-                  placeholder="Enter your access token"
-                  required
-                />
-                {tokenError && (
-                  <div className="mt-2 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-                    <p className="text-red-400 text-sm">{tokenError}</p>
-                  </div>
-                )}
-              </div>
-              <button
-                type="submit"
-                className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white 
-                           font-semibold rounded-lg transition-all duration-200 
-                           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              >
-                Access Admin Panel
-              </button>
-            </form>
-          </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="bg-black border-t border-white/20 mt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <img 
-                src="/image.png" 
-                alt="GameSir" 
-                className="h-6 w-auto"
-              />
-              <div className="h-6 w-px bg-white/20"></div>
-              <span className="text-white font-medium text-sm">Mobile Games Database</span>
-            </div>
-            <div className="text-center text-white/70">
-              <p className="text-sm">Submit. Play. Share.</p>
-            </div>
-          </div>
-        </footer>
-        </div>
-    );
-  }
-
-  if (showAddController) {
-    return <AddControllerForm onBack={() => setShowAddController(false)} />;
-  }
-
-  const filteredGames = games.filter(game => 
-    game.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredGameUpdates = gameUpdates.filter(update => 
-    (update as any).original_game?.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredControllers = controllers.filter(controller => 
-    controller.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const pendingGames = filteredGames.filter(game => !game.is_approved && !game.rejected_reason);
-  const approvedGames = filteredGames.filter(game => game.is_approved);
-  const rejectedGames = filteredGames.filter(game => game.rejected_reason);
-  const pendingUpdates = filteredGameUpdates.filter(update => !update.is_approved && !update.rejected_reason);
-  
 
   const renderGameCard = (game: Game, showActions = true) => (
     <div key={game.id} className="bg-black border border-white/30 rounded-xl p-4 md:p-6">
@@ -702,6 +629,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </div>
           ))}
         </div>
+
         <div className="space-y-3">
           {game.discord_username && (
             <div className="flex items-center gap-2 flex-wrap">
@@ -715,11 +643,11 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             </div>
           )}
 
-          {( (game.testing_controllers && game.testing_controllers.length > 0) || game.testing_controller) && (
+          {((game.testing_controllers && game.testing_controllers.length > 0) || game.testing_controller) && (
             <div className="flex items-center gap-2">
               <Gamepad2 className="h-4 w-4 text-white/50" />
               <span className="text-white text-sm">
-                Tested with: {( game.testing_controllers && game.testing_controllers.length > 0)
+                Tested with: {(game.testing_controllers && game.testing_controllers.length > 0)
                   ? game.testing_controllers?.map((c: any) => c.name).join(', ')
                   : game.testing_controller?.name || 'Unknown controller'
                 }
@@ -762,7 +690,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
             {!game.is_approved && !game.rejected_reason && (
               <>
                 <button
-                  onClick={() => handleApproval(game.id, currentApprover?.name || 'Admin')}
+                  onClick={() => handleApprove(game.id)}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
                              text-white font-medium rounded-lg transition-all duration-200 text-sm"
                 >
@@ -814,43 +742,43 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           </div>
         </div>
 
-        
         {/* Updated Protocol Information */}
         <div className="space-y-3">
           <div>
-          <h4 className="text-sm font-semibold text-white mb-2">Supported Protocols (Updated):</h4>
-          {getPlatformProtocols(update).map((platform) => (
-            <div key={platform.name} className="space-y-2">
-              <div className="flex items-center gap-2">
-                {platform.icon}
-                <span className="text-sm font-medium text-white">{platform.name}</span>
-              </div>
-              
-              {platform.protocols.length > 0 ? (
-                <div className="flex flex-wrap gap-2 ml-6">
-                  {platform.protocols.map((item, index) => (
-                    <span key={`${platform.name}-${item.protocol}-${index}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border bg-zinc-900 text-white border-white/30">
-                      {getProtocolIcon(item.protocol)}
-                      <span>{item.protocol}</span>
-                      <span className="text-xs text-white/50">via</span>
-                      <div className="flex items-center gap-1">
-                        {getConnectivityIcon(item.connectivity)}
-                        <span className="text-xs">{item.connectivity}</span>
-                      </div>
+            <h4 className="text-sm font-semibold text-white mb-2">Supported Protocols (Updated):</h4>
+            {getPlatformProtocols(update).map((platform) => (
+              <div key={platform.name} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  {platform.icon}
+                  <span className="text-sm font-medium text-white">{platform.name}</span>
+                </div>
+                
+                {platform.protocols.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 ml-6">
+                    {platform.protocols.map((item, index) => (
+                      <span key={`${platform.name}-${item.protocol}-${index}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border bg-zinc-900 text-white border-white/30">
+                        {getProtocolIcon(item.protocol)}
+                        <span>{item.protocol}</span>
+                        <span className="text-xs text-white/50">via</span>
+                        <div className="flex items-center gap-1">
+                          {getConnectivityIcon(item.connectivity)}
+                          <span className="text-xs">{item.connectivity}</span>
+                        </div>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="ml-6">
+                    <span className="px-3 py-2 bg-zinc-900 text-white/70 rounded-lg text-sm border border-white/30">
+                      No protocols supported
                     </span>
-                  ))}
-                </div>
-              ) : (
-                <div className="ml-6">
-                  <span className="px-3 py-2 bg-zinc-900 text-white/70 rounded-lg text-sm border border-white/30">
-                    No protocols supported
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
+
         <div className="space-y-3">
           {update.discord_username && (
             <div className="flex items-center gap-2 flex-wrap">
@@ -905,7 +833,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           {!update.is_approved && !update.rejected_reason && (
             <>
               <button
-                onClick={() => handleUpdateApproval(update.id, currentApprover?.name || 'Admin')}
+                onClick={() => handleApproveUpdate(update.id)}
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
                            text-white font-medium rounded-lg transition-all duration-200 text-sm"
               >
@@ -913,7 +841,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
                 Approve Update
               </button>
               <button
-                onClick={() => handleUpdateRejection(update.id, 'Rejected by admin')}
+                onClick={() => handleRejectUpdate(update.id, 'Rejected by admin')}
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
                            text-white font-medium rounded-lg transition-all duration-200 border border-white/30 text-sm"
               >
@@ -940,8 +868,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       {/* Header */}
       <header className="bg-black border-b border-white/20 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Desktop Header */}
-          <div className="hidden lg:flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16">
             <button
               onClick={onBack}
               className="flex items-center gap-3 text-white hover:text-white transition-colors
@@ -950,45 +877,24 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
               <ArrowLeft className="h-5 w-5" />
               <span className="font-medium">Back to Database</span>
             </button>
-            <div className="flex items-center gap-2">
-                <img 
-                  src="/image.png" 
-                  alt="GameSir" 
-                  className="h-8 w-auto"
-                />
-                <div className="h-8 w-px bg-white/20"></div>
-            <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+            <div className="flex items-center gap-4">
+              <img 
+                src="/image.png" 
+                alt="GameSir" 
+                className="h-8 w-auto"
+              />
+              <div className="h-8 w-px bg-white/20"></div>
+              <h1 className="text-xl font-bold text-white">Admin Panel</h1>
             </div>
-            <div className="text-sm text-white/70">
-              Welcome, {currentApprover?.name}
-            </div>
-          </div>
-
-          {/* Mobile Header */}
-          <div className="lg:hidden">
-            <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-white/70">Welcome, {currentApprover}</span>
               <button
-                onClick={onBack}
-                className="flex items-center gap-2 text-white hover:text-white transition-colors
-                           px-3 py-2 rounded-lg hover:bg-white/5 border border-white/20"
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-3 py-2 bg-black hover:bg-black/80 
+                           text-white font-medium rounded-lg transition-all duration-200 border border-white/30 text-sm"
               >
-                <ArrowLeft className="h-4 w-4" />
+                Sign Out
               </button>
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/image.png" 
-                  alt="GameSir" 
-                  className="h-6 w-auto"
-                />
-                <div className="h-8 w-px bg-white/20"></div>
-                <div className="flex flex-col">
-                  <h1 className="text-sm font-bold text-white leading-tight">
-                    Admin Panel
-                  </h1>
-                  <span className="text-xs text-white/70">{currentApprover?.name}</span>
-                </div>
-              </div>
-              <div className="w-2"></div>
             </div>
           </div>
         </div>
@@ -1052,56 +958,34 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
           
           <div className="flex flex-row gap-2 xl:ml-auto">
             <div className="relative grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-white/50" />
-              </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-white/30 rounded-lg 
+                className="pl-4 pr-4 py-2 border border-white/30 rounded-lg 
                            text-white placeholder-white/50 bg-black focus:outline-none focus:ring-2 
                            focus:ring-red-500 focus:border-red-500 transition-all duration-200 text-sm w-full"
               />
             </div>
             {currentView === 'controllers' && (
-              <>
               <button
                 onClick={() => setShowAddController(true)}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
                            text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
               >
                 <Plus className="h-4 w-4" />
                 Add Controller
               </button>
-              <button
-                title='Add New Controller'
-                onClick={() => setShowAddController(true)}
-                className="flex sm:hidden items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
-                           text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-              </>
             )}
             <button
               onClick={() => setShowExportModal(true)}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
+              className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
                          text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap
                          border border-white/30 hover:border-white/50"
             >
               <TbTableExport className="h-4 w-4" />
               Export Data
-            </button>
-             <button
-              title='Export Data'
-              onClick={() => setShowExportModal(true)}
-              className="flex sm:hidden items-center gap-2 px-4 py-2 bg-black hover:bg-black/80 
-                         text-white font-medium rounded-lg transition-all duration-200 text-sm whitespace-nowrap
-                         border border-white/30 hover:border-white/50"
-            >
-              <TbTableExport className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -1229,7 +1113,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
         <EditGameModal
           game={editingGame}
           controllers={controllers}
-          onSave={handleEditGame}
+          onSave={handleSaveGame}
           onClose={() => setEditingGame(null)}
         />
       )}
@@ -1238,7 +1122,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
         <EditGameUpdateModal
           gameUpdate={editingGameUpdate}
           controllers={controllers}
-          onSave={handleEditGameUpdate}
+          onSave={handleSaveGameUpdate}
           onClose={() => setEditingGameUpdate(null)}
         />
       )}
@@ -1246,7 +1130,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       {rejectingGame && (
         <RejectGameModal
           game={rejectingGame}
-          onReject={handleRejection}
+          onReject={handleReject}
           onClose={() => setRejectingGame(null)}
         />
       )}
@@ -1254,7 +1138,7 @@ export const ApprovalPage: React.FC<ApprovalPageProps> = ({ onBack }) => {
       {editingController && (
         <EditControllerModal
           controller={editingController}
-          onSave={handleEditController}
+          onSave={handleSaveController}
           onClose={() => setEditingController(null)}
         />
       )}
