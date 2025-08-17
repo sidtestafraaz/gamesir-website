@@ -61,7 +61,8 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
   ];
 
   const connectivityOptions = [
-    { value: '', label: 'None', shortLabel: 'None' },
+    { value: '', label: 'Untested', shortLabel: 'Untested' },
+    { value: 'None', label: 'Not Supported', shortLabel: 'Not Supported' },
     { value: 'Wired/2.4GHz', label: 'Wired/2.4GHz', shortLabel: 'Wired/2.4GHz' },
     { value: 'Bluetooth', label: 'Bluetooth', shortLabel: 'Bluetooth' },
     { value: 'Wired/2.4GHz/Bluetooth', label: 'Both', shortLabel: 'Both' }
