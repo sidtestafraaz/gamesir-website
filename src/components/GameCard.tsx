@@ -202,16 +202,28 @@ export const GameCard: React.FC<GameCardProps> = ({ result }) => {
                                          ${controller 
                                            && isProtocolCompatible(item.protocol, item.connectivity)
                                              ? 'bg-red-900/30 text-red-400 border-red-800'
-                                           : 'bg-zinc-900 text-white border-white/30'
+                                           : item.connectivity === 'None' 
+                                             ? 'bg-red-900/20 text-red-300 border-red-700/50'
+                                             : item.connectivity === '' || !item.connectivity
+                                               ? 'bg-yellow-900/20 text-yellow-300 border-yellow-700/50'
+                                               : 'bg-zinc-900 text-white border-white/30'
                                          }`}
                             >
                               {getProtocolIcon(item.protocol)}
                               <span>{item.protocol}</span>
-                              <span className="text-xs text-white/50">via</span>
-                              <div className="flex items-center gap-1">
-                                {getConnectivityIcon(item.connectivity)}
-                                <span className="text-xs">{item.connectivity}</span>
-                              </div>
+                              {item.connectivity === 'None' ? (
+                                <span className="text-xs">Not Supported</span>
+                              ) : item.connectivity === '' || !item.connectivity ? (
+                                <span className="text-xs">Untested</span>
+                              ) : (
+                                <>
+                                  <span className="text-xs text-white/50">via</span>
+                                  <div className="flex items-center gap-1">
+                                    {getConnectivityIcon(item.connectivity)}
+                                    <span className="text-xs">{item.connectivity}</span>
+                                  </div>
+                                </>
+                              )}
                             </span>
                           ))}
                         </div>
